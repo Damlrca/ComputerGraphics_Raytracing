@@ -52,7 +52,6 @@ namespace ComputerGraphics_Raytracing
                 GL.ShaderSource(shaderID, sr.ReadToEnd());
             }
             GL.CompileShader(shaderID);
-            //GL.AttachShader(program, shaderID);
 
             int code;
             GL.GetShader(shaderID, ShaderParameter.CompileStatus, out code);
