@@ -7,25 +7,28 @@ namespace ComputerGraphics_Raytracing
 {
     class Shaders
     {
-        private int BasicVertexShader;
-        private int BasicFragmentShader;
-        private int BasicProgramID;
+        private int programID;
 
         public Shaders(string vertex_filename, string fragment_filename)
         {
-            BasicVertexShader = CreateShader(vertex_filename, ShaderType.VertexShader);
-            BasicFragmentShader = CreateShader(fragment_filename, ShaderType.FragmentShader);
+            int vertexShader = CreateShader(vertex_filename, ShaderType.VertexShader);
+            int fragmentShader = CreateShader(fragment_filename, ShaderType.FragmentShader);
 
-            BasicProgramID = GL.CreateProgram();
-            GL.AttachShader(BasicProgramID, BasicVertexShader);
-            GL.AttachShader(BasicProgramID, BasicFragmentShader);
-            GL.LinkProgram(BasicProgramID);
+            programID = GL.CreateProgram();
+            GL.AttachShader(programID, vertexShader);
+            GL.AttachShader(programID, fragmentShader);
+            GL.LinkProgram(programID);
+            GL.ValidateProgram(programID);
 
-            int code;
-            GL.GetProgram(BasicProgramID, GetProgramParameterName.LinkStatus, out code);
+            GL.DetachShader(programID, vertexShader);
+            GL.DetachShader(programID, fragmentShader);
+            GL.DeleteShader(vertexShader);
+            GL.DeleteShader(fragmentShader);
+
+            GL.GetProgram(programID, GetProgramParameterName.LinkStatus, out int code);
             if (code == 0)
             {
-                string infolog = GL.GetProgramInfoLog(BasicProgramID);
+                string infolog = GL.GetProgramInfoLog(programID);
                 Console.WriteLine($"Ошибка линковки шейдерной программы\n\n{infolog}");
             }
             else
@@ -36,7 +39,7 @@ namespace ComputerGraphics_Raytracing
 
         public void ActivateProgram()
         {
-            GL.UseProgram(BasicProgramID);
+            GL.UseProgram(programID);
         }
 
         public void DeactivateProgram()
@@ -44,7 +47,7 @@ namespace ComputerGraphics_Raytracing
             GL.UseProgram(0);
         }
 
-        private int CreateShader(string filename, ShaderType type)
+        private static int CreateShader(string filename, ShaderType type)
         {
             int shaderID = GL.CreateShader(type);
             using (StreamReader sr = new StreamReader(filename))
@@ -53,12 +56,13 @@ namespace ComputerGraphics_Raytracing
             }
             GL.CompileShader(shaderID);
 
-            int code;
-            GL.GetShader(shaderID, ShaderParameter.CompileStatus, out code);
+            GL.GetShader(shaderID, ShaderParameter.CompileStatus, out int code);
             if (code == 0)
             {
                 string infolog = GL.GetShaderInfoLog(shaderID);
                 Console.WriteLine($"Ошибка компиляции шейдера {filename}\n\n{infolog}");
+                GL.DeleteShader(shaderID);
+                return 0;
             }
             else
             {
@@ -66,6 +70,34 @@ namespace ComputerGraphics_Raytracing
             }
 
             return shaderID;
+        }
+
+        // Dispose
+
+        private bool disposedValue = false;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                GL.DeleteProgram(programID);
+
+                disposedValue = true;
+            }
+        }
+
+        ~Shaders()
+        {
+            if (disposedValue == false)
+            {
+                Console.WriteLine("GPU Resource leak! Did you forget to call Dispose()?");
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

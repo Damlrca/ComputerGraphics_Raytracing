@@ -24,18 +24,25 @@ namespace ComputerGraphics_Raytracing
         {
             base.OnLoad();
 
-            shaders = new Shaders("..\\..\\..\\raytracing.vert", "..\\..\\..\\raytracing.frag");
-
-            GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-
             VertexBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
 
             VertexArrayObject = GL.GenVertexArray();
             GL.BindVertexArray(VertexArrayObject);
-            GL.VertexAttribPointer(0, 4, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+
             GL.EnableVertexAttribArray(0);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);   
+
+            shaders = new Shaders("..\\..\\..\\raytracing.vert", "..\\..\\..\\raytracing.frag");
+            shaders.ActivateProgram();
+        }
+
+        protected override void OnUnload()
+        {
+            base.OnUnload();
+            
+            shaders.Dispose();
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
