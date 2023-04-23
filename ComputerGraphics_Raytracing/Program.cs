@@ -24,8 +24,7 @@ namespace ComputerGraphics_Raytracing
         {
             base.OnLoad();
 
-            shaders = new Shaders("D:\\source\\ComputerGraphics_Raytracing\\ComputerGraphics_Raytracing\\raytracing.vert",
-                                  "D:\\source\\ComputerGraphics_Raytracing\\ComputerGraphics_Raytracing\\raytracing.frag");
+            shaders = new Shaders("..\\..\\..\\raytracing.vert", "..\\..\\..\\raytracing.frag");
 
             GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
