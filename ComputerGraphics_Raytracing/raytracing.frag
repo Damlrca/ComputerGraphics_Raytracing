@@ -1,21 +1,24 @@
 #version 330 core
-out vec4 FragColor;
-in vec3 glPosition;
-
+out vec4 color;
+in vec4 glPosition;
+/*
 #define EPSILON = 0.001
 #define BIG = 1000000.0
 const int DIFFUSE = 1;
 const int REFLECTION = 2;
 const int REFRACTION = 3;
-
+*/
 struct SCamera {
     vec3 Position;
     vec3 View;
     vec3 Up;
     vec3 Side;
-    vec2 Scale;
+    vec2 aspect;
 };
 
+uniform SCamera uCamera;
+
+/*
 struct SRay {
     vec3 Origin;
     vec3 Direction;
@@ -223,10 +226,10 @@ bool Raytrace(SRay ray, SSphere spheres[2], STriangle triangles[10], SMaterial m
     }
     return result;
 }
-
+*/
 void main()
 {
-    FragColor = vec4(abs(glPosition.xy), 0, 1.0);
+    color = vec4(abs(glPosition.xy) * uCamera.aspect, 0, 1.0);
     /*
     SCamera uCamera = initializeDefaultCamera();
     //initializeDefaultScene(triangles, spheres);

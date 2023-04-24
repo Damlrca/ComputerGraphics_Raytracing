@@ -47,6 +47,12 @@ namespace ComputerGraphics_Raytracing
             GL.UseProgram(0);
         }
 
+        public void Uniform2(string name, float x, float y)
+        {
+            int loc = GL.GetUniformLocation(programID, name);
+            GL.Uniform2(loc, x, y);
+        }
+
         private static int CreateShader(string filename, ShaderType type)
         {
             int shaderID = GL.CreateShader(type);
