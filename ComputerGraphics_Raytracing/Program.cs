@@ -41,6 +41,8 @@ namespace ComputerGraphics_Raytracing
 
             initializeCamera();
             initializeScene();
+            initializeLight();
+            initializeMaterials();
         }
 
         private void initializeCamera()
@@ -97,11 +99,31 @@ namespace ComputerGraphics_Raytracing
             // SPHERES
             shaders.Uniform3("spheres[0].center", -1.0f, -1.0f, -2.0f);
             shaders.Uniform1("spheres[0].radius", 2.0f);
-            shaders.Uniform1("spheres[0].MaterialId", 0);
+            shaders.Uniform1("spheres[0].MaterialId", 1);
 
             shaders.Uniform3("spheres[1].center", 2.0f, 1.0f, 2.0f);
             shaders.Uniform1("spheres[1].radius", 1.0f);
-            shaders.Uniform1("spheres[1].MaterialId", 0);
+            shaders.Uniform1("spheres[1].MaterialId", 1);
+        }
+
+        private void initializeLight()
+        {
+            shaders.Uniform3("uLight.position", 0.0f, 2.0f, -4.0f);
+        }
+
+        private void initializeMaterials()
+        {
+            shaders.Uniform3("materials[0].color", 0.0f, 1.0f, 0.0f);
+            shaders.Uniform4("materials[0].lightCoeffs", 0.4f, 0.9f, 0.0f, 512.0f);
+            shaders.Uniform1("materials[0].reflectionCoef", 0.5f);
+            shaders.Uniform1("materials[0].refractionCoef", 1.0f);
+            shaders.Uniform1("materials[0].MaterialType", 1);
+
+            shaders.Uniform3("materials[1].color", 0.0f, 0.0f, 1.0f);
+            shaders.Uniform4("materials[1].lightCoeffs", 0.4f, 0.9f, 0.0f, 512.0f);
+            shaders.Uniform1("materials[1].reflectionCoef", 0.5f);
+            shaders.Uniform1("materials[1].refractionCoef", 1.0f);
+            shaders.Uniform1("materials[1].MaterialType", 1);
         }
 
         protected override void OnUnload()

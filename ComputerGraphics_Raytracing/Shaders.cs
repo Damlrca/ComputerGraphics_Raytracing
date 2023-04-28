@@ -47,14 +47,37 @@ namespace ComputerGraphics_Raytracing
             GL.UseProgram(0);
         }
 
+        public void Uniform1(string name, int x)
+        {
+            int loc = GL.GetUniformLocation(programID, name);
+            if (loc == -1)
+            {
+                Console.WriteLine($"uniform1i: name \"{name}\" does not correspond to an active uniform variable");
+                return;
+            }
+            GL.Uniform1(loc, x);
+        }
+
         public void Uniform1(string name, float x)
         {
             int loc = GL.GetUniformLocation(programID, name);
             if (loc == -1)
             {
-                Console.WriteLine($"uniform1: name \"{name}\" does not correspond to an active uniform variable");
+                Console.WriteLine($"uniform1f: name \"{name}\" does not correspond to an active uniform variable");
+                return;
             }
             GL.Uniform1(loc, x);
+        }
+
+        public void Uniform2(string name, int x, int y)
+        {
+            int loc = GL.GetUniformLocation(programID, name);
+            if (loc == -1)
+            {
+                Console.WriteLine($"uniform2i: name \"{name}\" does not correspond to an active uniform variable");
+                return;
+            }
+            GL.Uniform2(loc, x, y);
         }
 
         public void Uniform2(string name, float x, float y)
@@ -62,9 +85,21 @@ namespace ComputerGraphics_Raytracing
             int loc = GL.GetUniformLocation(programID, name);
             if (loc == -1)
             {
-                Console.WriteLine($"uniform2: name \"{name}\" does not correspond to an active uniform variable");
+                Console.WriteLine($"uniform2f: name \"{name}\" does not correspond to an active uniform variable");
+                return;
             }
             GL.Uniform2(loc, x, y);
+        }
+
+        public void Uniform3(string name, int x, int y, int z)
+        {
+            int loc = GL.GetUniformLocation(programID, name);
+            if (loc == -1)
+            {
+                Console.WriteLine($"uniform3i: name \"{name}\" does not correspond to an active uniform variable");
+                return;
+            }
+            GL.Uniform3(loc, x, y, z);
         }
 
         public void Uniform3(string name, float x, float y, float z)
@@ -72,9 +107,32 @@ namespace ComputerGraphics_Raytracing
             int loc = GL.GetUniformLocation(programID, name);
             if (loc == -1)
             {
-                Console.WriteLine($"uniform3: name \"{name}\" does not correspond to an active uniform variable");
+                Console.WriteLine($"uniform3f: name \"{name}\" does not correspond to an active uniform variable");
+                return;
             }
             GL.Uniform3(loc, x, y, z);
+        }
+
+        public void Uniform4(string name, int x, int y, int z, int w)
+        {
+            int loc = GL.GetUniformLocation(programID, name);
+            if (loc == -1)
+            {
+                Console.WriteLine($"uniform4i: name \"{name}\" does not correspond to an active uniform variable");
+                return;
+            }
+            GL.Uniform4(loc, x, y, z, w);
+        }
+
+        public void Uniform4(string name, float x, float y, float z, float w)
+        {
+            int loc = GL.GetUniformLocation(programID, name);
+            if (loc == -1)
+            {
+                Console.WriteLine($"uniform4f: name \"{name}\" does not correspond to an active uniform variable");
+                return;
+            }
+            GL.Uniform4(loc, x, y, z, w);
         }
 
         private static int CreateShader(string filename, ShaderType type)
