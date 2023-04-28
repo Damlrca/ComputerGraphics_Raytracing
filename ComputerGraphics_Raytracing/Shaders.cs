@@ -47,10 +47,34 @@ namespace ComputerGraphics_Raytracing
             GL.UseProgram(0);
         }
 
+        public void Uniform1(string name, float x)
+        {
+            int loc = GL.GetUniformLocation(programID, name);
+            if (loc == -1)
+            {
+                Console.WriteLine($"uniform1: name \"{name}\" does not correspond to an active uniform variable");
+            }
+            GL.Uniform1(loc, x);
+        }
+
         public void Uniform2(string name, float x, float y)
         {
             int loc = GL.GetUniformLocation(programID, name);
+            if (loc == -1)
+            {
+                Console.WriteLine($"uniform2: name \"{name}\" does not correspond to an active uniform variable");
+            }
             GL.Uniform2(loc, x, y);
+        }
+
+        public void Uniform3(string name, float x, float y, float z)
+        {
+            int loc = GL.GetUniformLocation(programID, name);
+            if (loc == -1)
+            {
+                Console.WriteLine($"uniform3: name \"{name}\" does not correspond to an active uniform variable");
+            }
+            GL.Uniform3(loc, x, y, z);
         }
 
         private static int CreateShader(string filename, ShaderType type)
