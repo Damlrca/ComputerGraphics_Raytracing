@@ -44,7 +44,7 @@ struct STriangle {
     int MaterialId;
 };
 
-uniform STriangle triangles[10];
+uniform STriangle triangles[12];
 uniform SSphere spheres[2];
 
 bool IntersectSphere(SSphere sphere, SRay ray, float start, float final, out float time) {
@@ -76,7 +76,7 @@ bool IntersectTriangle (SRay ray, vec3 v1, vec3 v2, vec3 v3, out float time) {
     vec3 B = v3 - v1;
     vec3 N = cross(A, B);
     float NdotRayDirection = dot(N, ray.direction);
-    if (abs(NdotRayDirection) < EPSILON)
+    if (NdotRayDirection < EPSILON)
         return false;
     float d = dot(N, v1);
     float t = -(dot(N, ray.origin) - d) / NdotRayDirection;
@@ -205,7 +205,7 @@ struct STracingRay {
     int depth;
 };
 
-STracingRay arr[1000];
+STracingRay arr[11];
 int id = -1;
 void pushRay(STracingRay trRay) {
     id++;

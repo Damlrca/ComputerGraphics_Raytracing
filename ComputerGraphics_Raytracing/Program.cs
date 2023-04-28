@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -45,12 +46,17 @@ namespace ComputerGraphics_Raytracing
             initializeMaterials();
         }
 
+        Vector3 pos = new Vector3(18.0f, 0.0f, -18.0f);
+        Vector3 view = new Vector3(-1.0f * 2, 0.0f, 1.0f * 2);
+        Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
+        Vector3 right = new Vector3(1.0f / (float)Math.Sqrt(2), 0.0f, 1.0f / (float)Math.Sqrt(2));
+
         private void initializeCamera()
         {
-            shaders.Uniform3("uCamera.position", 0.0f, 0.0f, -8.0f);
-            shaders.Uniform3("uCamera.view", 0.0f, 0.0f, 1.0f);
-            shaders.Uniform3("uCamera.up", 0.0f, 1.0f, 0.0f);
-            shaders.Uniform3("uCamera.right", 1.0f, 0.0f, 0.0f);
+            shaders.Uniform3("uCamera.position", pos.X, pos.Y, pos.Z);
+            shaders.Uniform3("uCamera.view", view.X, view.Y, view.Z);
+            shaders.Uniform3("uCamera.up", up.X, up.Y, up.Z);
+            shaders.Uniform3("uCamera.right", right.X, right.Y, right.Z);
             shaders.Uniform2("uCamera.scale", (float)Size.X / Size.Y, 1.0f);
         }
 
@@ -69,6 +75,15 @@ namespace ComputerGraphics_Raytracing
             shaders.Uniform1("triangles[1].MaterialId", 0);
 
             // right wall: triangles 2, 3
+            shaders.Uniform3("triangles[2].v1", 5.0f, -5.0f, 5.0f);
+            shaders.Uniform3("triangles[2].v2", 5.0f, 5.0f, -5.0f);
+            shaders.Uniform3("triangles[2].v3", 5.0f, 5.0f, 5.0f);
+            shaders.Uniform1("triangles[2].MaterialId", 0);
+
+            shaders.Uniform3("triangles[3].v1", 5.0f, -5.0f, 5.0f);
+            shaders.Uniform3("triangles[3].v2", 5.0f, -5.0f, -5.0f);
+            shaders.Uniform3("triangles[3].v3", 5.0f, 5.0f, -5.0f);
+            shaders.Uniform1("triangles[3].MaterialId", 0);
 
             // down wall: triangles 4, 5
             shaders.Uniform3("triangles[4].v1", 5.0f, -5.0f, -5.0f);
@@ -82,6 +97,15 @@ namespace ComputerGraphics_Raytracing
             shaders.Uniform1("triangles[5].MaterialId", 0);
 
             // up wall: triangles 6, 7
+            shaders.Uniform3("triangles[6].v1", -5.0f, 5.0f, -5.0f);
+            shaders.Uniform3("triangles[6].v2", 5.0f, 5.0f, 5.0f);
+            shaders.Uniform3("triangles[6].v3", 5.0f, 5.0f, -5.0f);
+            shaders.Uniform1("triangles[6].MaterialId", 0);
+
+            shaders.Uniform3("triangles[7].v1", -5.0f, 5.0f, -5.0f);
+            shaders.Uniform3("triangles[7].v2", -5.0f, 5.0f, 5.0f);
+            shaders.Uniform3("triangles[7].v3", 5.0f, 5.0f, 5.0f);
+            shaders.Uniform1("triangles[7].MaterialId", 0);
 
             // back wall: triangles 8, 9
             shaders.Uniform3("triangles[8].v1", -5.0f, -5.0f, 5.0f);
@@ -94,7 +118,16 @@ namespace ComputerGraphics_Raytracing
             shaders.Uniform3("triangles[9].v3", 5.0f, 5.0f, 5.0f);
             shaders.Uniform1("triangles[9].MaterialId", 0);
 
-            // front wall: triangles 10, 11 ?
+            // front wall: triangles 10, 11
+            shaders.Uniform3("triangles[10].v1", 5.0f, -5.0f, -5.0f);
+            shaders.Uniform3("triangles[10].v2", -5.0f, -5.0f, -5.0f);
+            shaders.Uniform3("triangles[10].v3", -5.0f, 5.0f, -5.0f);
+            shaders.Uniform1("triangles[10].MaterialId", 0);
+
+            shaders.Uniform3("triangles[11].v1", 5.0f, -5.0f, -5.0f);
+            shaders.Uniform3("triangles[11].v2", -5.0f, 5.0f, -5.0f);
+            shaders.Uniform3("triangles[11].v3", 5.0f, 5.0f, -5.0f);
+            shaders.Uniform1("triangles[11].MaterialId", 0);
 
             // SPHERES
             shaders.Uniform3("spheres[0].center", -1.0f, -1.0f, -2.0f);
@@ -146,11 +179,27 @@ namespace ComputerGraphics_Raytracing
             SwapBuffers();
         }
 
+        static double angle = 2 * Math.PI / 60 / 36000 * 2;
+        Matrix3 m3 = new Matrix3(
+            (float)Math.Cos(angle), 0.0f, (float)Math.Sin(angle),
+            0.0f, 1.0f, 0.0f,
+            (float)-Math.Sin(angle), 0.0f, (float)Math.Cos(angle)
+        );
+
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
 
             KeyboardState input = KeyboardState;
+
+            pos = m3 * pos;
+            view = m3 * view;
+            up = m3 * up;
+            right = m3 * right;
+            shaders.Uniform3("uCamera.position", pos.X, pos.Y, pos.Z);
+            shaders.Uniform3("uCamera.view", view.X, view.Y, view.Z);
+            shaders.Uniform3("uCamera.up", up.X, up.Y, up.Z);
+            shaders.Uniform3("uCamera.right", right.X, right.Y, right.Z);
 
             if (input.IsKeyDown(Keys.Escape))
             {
