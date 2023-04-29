@@ -20,7 +20,7 @@ namespace ComputerGraphics_Raytracing
         private Shaders shaders;
 
         public MyWindow(int width, int height, string title) :
-            base(new GameWindowSettings() { RenderFrequency = 60 }, new NativeWindowSettings() { Size = (width, height), Title = title })
+            base(new GameWindowSettings() { RenderFrequency = 60, UpdateFrequency = 60 }, new NativeWindowSettings() { Size = (width, height), Title = title })
         { }
 
         protected override void OnLoad()
@@ -62,71 +62,71 @@ namespace ComputerGraphics_Raytracing
 
         private void initializeScene()
         {
-            // TRIANGLES
+            // TRIANGLES (clockwise order of vectors!!!)
             // left wall: triangles 0, 1
             shaders.Uniform3("triangles[0].v1", -5.0f, -5.0f, -5.0f);
-            shaders.Uniform3("triangles[0].v2", -5.0f, 5.0f, 5.0f);
-            shaders.Uniform3("triangles[0].v3", -5.0f, 5.0f, -5.0f);
+            shaders.Uniform3("triangles[0].v2", -5.0f, 5.0f, -5.0f);
+            shaders.Uniform3("triangles[0].v3", -5.0f, 5.0f, 5.0f);
             shaders.Uniform1("triangles[0].MaterialId", 0);
 
             shaders.Uniform3("triangles[1].v1", -5.0f, -5.0f, -5.0f);
-            shaders.Uniform3("triangles[1].v2", -5.0f, -5.0f, 5.0f);
-            shaders.Uniform3("triangles[1].v3", -5.0f, 5.0f, 5.0f);
+            shaders.Uniform3("triangles[1].v2", -5.0f, 5.0f, 5.0f);
+            shaders.Uniform3("triangles[1].v3", -5.0f, -5.0f, 5.0f);
             shaders.Uniform1("triangles[1].MaterialId", 0);
 
             // right wall: triangles 2, 3
             shaders.Uniform3("triangles[2].v1", 5.0f, -5.0f, 5.0f);
-            shaders.Uniform3("triangles[2].v2", 5.0f, 5.0f, -5.0f);
-            shaders.Uniform3("triangles[2].v3", 5.0f, 5.0f, 5.0f);
+            shaders.Uniform3("triangles[2].v2", 5.0f, 5.0f, 5.0f);
+            shaders.Uniform3("triangles[2].v3", 5.0f, 5.0f, -5.0f);
             shaders.Uniform1("triangles[2].MaterialId", 0);
 
             shaders.Uniform3("triangles[3].v1", 5.0f, -5.0f, 5.0f);
-            shaders.Uniform3("triangles[3].v2", 5.0f, -5.0f, -5.0f);
-            shaders.Uniform3("triangles[3].v3", 5.0f, 5.0f, -5.0f);
+            shaders.Uniform3("triangles[3].v2", 5.0f, 5.0f, -5.0f);
+            shaders.Uniform3("triangles[3].v3", 5.0f, -5.0f, -5.0f);
             shaders.Uniform1("triangles[3].MaterialId", 0);
 
             // down wall: triangles 4, 5
             shaders.Uniform3("triangles[4].v1", 5.0f, -5.0f, -5.0f);
-            shaders.Uniform3("triangles[4].v2", -5.0f, -5.0f, 5.0f);
-            shaders.Uniform3("triangles[4].v3", -5.0f, -5.0f, -5.0f);
+            shaders.Uniform3("triangles[4].v2", -5.0f, -5.0f, -5.0f);
+            shaders.Uniform3("triangles[4].v3", -5.0f, -5.0f, 5.0f);
             shaders.Uniform1("triangles[4].MaterialId", 0);
             
             shaders.Uniform3("triangles[5].v1", 5.0f, -5.0f, -5.0f);
-            shaders.Uniform3("triangles[5].v2", 5.0f, -5.0f, 5.0f);
-            shaders.Uniform3("triangles[5].v3", -5.0f, -5.0f, 5.0f);
+            shaders.Uniform3("triangles[5].v2", -5.0f, -5.0f, 5.0f);
+            shaders.Uniform3("triangles[5].v3", 5.0f, -5.0f, 5.0f);
             shaders.Uniform1("triangles[5].MaterialId", 0);
 
             // up wall: triangles 6, 7
             shaders.Uniform3("triangles[6].v1", -5.0f, 5.0f, -5.0f);
-            shaders.Uniform3("triangles[6].v2", 5.0f, 5.0f, 5.0f);
-            shaders.Uniform3("triangles[6].v3", 5.0f, 5.0f, -5.0f);
+            shaders.Uniform3("triangles[6].v2", 5.0f, 5.0f, -5.0f);
+            shaders.Uniform3("triangles[6].v3", 5.0f, 5.0f, 5.0f);
             shaders.Uniform1("triangles[6].MaterialId", 0);
 
             shaders.Uniform3("triangles[7].v1", -5.0f, 5.0f, -5.0f);
-            shaders.Uniform3("triangles[7].v2", -5.0f, 5.0f, 5.0f);
-            shaders.Uniform3("triangles[7].v3", 5.0f, 5.0f, 5.0f);
+            shaders.Uniform3("triangles[7].v2", 5.0f, 5.0f, 5.0f);
+            shaders.Uniform3("triangles[7].v3", -5.0f, 5.0f, 5.0f);
             shaders.Uniform1("triangles[7].MaterialId", 0);
 
             // back wall: triangles 8, 9
             shaders.Uniform3("triangles[8].v1", -5.0f, -5.0f, 5.0f);
-            shaders.Uniform3("triangles[8].v2", 5.0f, 5.0f, 5.0f);
-            shaders.Uniform3("triangles[8].v3", -5.0f, 5.0f, 5.0f);
+            shaders.Uniform3("triangles[8].v2", -5.0f, 5.0f, 5.0f);
+            shaders.Uniform3("triangles[8].v3", 5.0f, 5.0f, 5.0f);
             shaders.Uniform1("triangles[8].MaterialId", 0);
             
             shaders.Uniform3("triangles[9].v1", -5.0f, -5.0f, 5.0f);
-            shaders.Uniform3("triangles[9].v2", 5.0f, -5.0f, 5.0f);
-            shaders.Uniform3("triangles[9].v3", 5.0f, 5.0f, 5.0f);
+            shaders.Uniform3("triangles[9].v2", 5.0f, 5.0f, 5.0f);
+            shaders.Uniform3("triangles[9].v3", 5.0f, -5.0f, 5.0f);
             shaders.Uniform1("triangles[9].MaterialId", 0);
 
             // front wall: triangles 10, 11
             shaders.Uniform3("triangles[10].v1", 5.0f, -5.0f, -5.0f);
-            shaders.Uniform3("triangles[10].v2", -5.0f, -5.0f, -5.0f);
-            shaders.Uniform3("triangles[10].v3", -5.0f, 5.0f, -5.0f);
+            shaders.Uniform3("triangles[10].v2", -5.0f, 5.0f, -5.0f);
+            shaders.Uniform3("triangles[10].v3", -5.0f, -5.0f, -5.0f);
             shaders.Uniform1("triangles[10].MaterialId", 0);
 
             shaders.Uniform3("triangles[11].v1", 5.0f, -5.0f, -5.0f);
-            shaders.Uniform3("triangles[11].v2", -5.0f, 5.0f, -5.0f);
-            shaders.Uniform3("triangles[11].v3", 5.0f, 5.0f, -5.0f);
+            shaders.Uniform3("triangles[11].v2", 5.0f, 5.0f, -5.0f);
+            shaders.Uniform3("triangles[11].v3", -5.0f, 5.0f, -5.0f);
             shaders.Uniform1("triangles[11].MaterialId", 0);
 
             // SPHERES
@@ -147,16 +147,16 @@ namespace ComputerGraphics_Raytracing
         private void initializeMaterials()
         {
             shaders.Uniform3("materials[0].color", 0.0f, 1.0f, 0.0f);
-            shaders.Uniform4("materials[0].lightCoeffs", 0.4f, 0.9f, 0.0f, 512.0f);
+            shaders.Uniform4("materials[0].lightCoeffs", 0.4f, 0.9f, 0.5f, 10.0f);
             shaders.Uniform1("materials[0].reflectionCoef", 0.5f);
             shaders.Uniform1("materials[0].refractionCoef", 1.0f);
             shaders.Uniform1("materials[0].MaterialType", 1);
 
             shaders.Uniform3("materials[1].color", 0.0f, 0.0f, 1.0f);
-            shaders.Uniform4("materials[1].lightCoeffs", 0.4f, 0.9f, 0.0f, 512.0f);
+            shaders.Uniform4("materials[1].lightCoeffs", 0.4f, 0.9f, 0.5f, 10.0f);
             shaders.Uniform1("materials[1].reflectionCoef", 0.5f);
             shaders.Uniform1("materials[1].refractionCoef", 1.0f);
-            shaders.Uniform1("materials[1].MaterialType", 1);
+            shaders.Uniform1("materials[1].MaterialType", 2);
         }
 
         protected override void OnUnload()
@@ -179,7 +179,7 @@ namespace ComputerGraphics_Raytracing
             SwapBuffers();
         }
 
-        static double angle = 2 * Math.PI / 60 / 36000 * 2;
+        static double angle = 2 * Math.PI / 60 / 60;
         Matrix3 m3 = new Matrix3(
             (float)Math.Cos(angle), 0.0f, (float)Math.Sin(angle),
             0.0f, 1.0f, 0.0f,

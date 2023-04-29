@@ -4,9 +4,6 @@ out vec4 color;
 
 #define EPSILON 0.001
 #define BIG 1000000.0
-const int DIFFUSE = 1;
-const int REFLECTION = 2;
-const int REFRACTION = 3;
 const int DIFFUSE_REFLECTION = 1;
 const int MIRROR_REFLECTION = 2;
 
@@ -47,39 +44,39 @@ struct STriangle {
 uniform STriangle triangles[12];
 uniform SSphere spheres[2];
 
-bool IntersectSphere(SSphere sphere, SRay ray, float start, float final, out float time) {
+bool IntersectSphere(SRay ray, SSphere sphere, out float time) {
+    time = -1;
     ray.origin -= sphere.center;
     float A = dot(ray.direction, ray.direction);
     float B = dot(ray.direction, ray.origin);
     float C = dot(ray.origin, ray.origin) - sphere.radius * sphere.radius;
     float D = B * B - A * C;
-    if (D > 0.0) {
+    if (D > 0.0f) {
         D = sqrt(D);
-        // time = min(max(0.0, (-B - D) / A), (-B + D) / A);
         float t1 = (-B - D) / A;
         float t2 = (-B + D) / A;
-        if (t1 < 0 && t2 < 0)
+        if (t1 < 0.0f && t2 < 0.0f)
             return false;
-        if (min(t1, t2) < 0) {
-            time = max(t1, t2);
-            return true;
-        }
         time = min(t1, t2);
+        if (time < 0.0f)
+            time = max(t1, t2);
         return true;
     }
     return false;
 }
 
-bool IntersectTriangle (SRay ray, vec3 v1, vec3 v2, vec3 v3, out float time) {
+bool IntersectTriangle(SRay ray, STriangle triangle, out float time) {
+    vec3 v1 = triangle.v1;
+    vec3 v2 = triangle.v2;
+    vec3 v3 = triangle.v3;
     time = -1;
     vec3 A = v2 - v1;
     vec3 B = v3 - v1;
     vec3 N = cross(A, B);
     float NdotRayDirection = dot(N, ray.direction);
-    if (NdotRayDirection < EPSILON)
+    if (NdotRayDirection > -EPSILON) // triangle is transparent at one side
         return false;
-    float d = dot(N, v1);
-    float t = -(dot(N, ray.origin) - d) / NdotRayDirection;
+    float t = dot(N, v1 - ray.origin) / NdotRayDirection;
     if (t < 0)
         return false;
     vec3 P = ray.origin + t * ray.direction;
@@ -92,12 +89,12 @@ bool IntersectTriangle (SRay ray, vec3 v1, vec3 v2, vec3 v3, out float time) {
     vec3 edge2 = v3 - v2;
     vec3 VP2 = P - v2;
     C = cross(edge2, VP2);
-    if (dot(N, C) < 0)
+    if (dot(N, C) < -EPSILON)
         return false;
     vec3 edge3 = v1 - v3;
     vec3 VP3 = P - v3;
     C = cross(edge3, VP3);
-    if (dot(N, C) < 0)
+    if (dot(N, C) < -EPSILON)
         return false;
     time = t;
     return true;
@@ -107,11 +104,7 @@ struct SIntersection{
     float time;
     vec3 point;
     vec3 normal;
-    vec3 color;
-    vec4 lightCoeffs; // ambient, diffuse and specular coeffs
-    float reflectionCoef;
-    float refractionCoef;
-    int MaterialType;
+    int MaterialId;
 };
 
 struct SLight {
@@ -132,35 +125,25 @@ uniform SMaterial materials[6];
 
 bool Raytrace(SRay ray, float start, float final, inout SIntersection intersect) {
     bool result = false;
-    float test = start;
+    float test;
     intersect.time = final;
     //calculate intersect with spheres
     for (int i = 0; i < spheres.length(); i++) {
-        SSphere sphere = spheres[i];
-        if (IntersectSphere(sphere, ray, start, final, test) && test < intersect.time) {
-            intersect.time = test; intersect.point = ray.origin + ray.direction * test;
+        if (IntersectSphere(ray, spheres[i], test) && test < intersect.time) {
+            intersect.time = test;
+            intersect.point = ray.origin + ray.direction * test;
             intersect.normal = normalize(intersect.point - spheres[i].center);
-            SMaterial material = materials[sphere.MaterialId];
-            intersect.color = material.color;
-            intersect.lightCoeffs = material.lightCoeffs;
-            intersect.reflectionCoef = material.reflectionCoef;
-            intersect.refractionCoef = material.refractionCoef;
-            intersect.MaterialType = material.MaterialType;
+            intersect.MaterialId = spheres[i].MaterialId;
             result = true;
         }
     }
     //calculate intersect with triangles
     for (int i = 0; i < triangles.length(); i++) {
-        STriangle triangle = triangles[i];
-        if(IntersectTriangle(ray, triangle.v1, triangle.v2, triangle.v3, test) && test < intersect.time) {
-            intersect.time = test; intersect.point = ray.origin + ray.direction * test;
-            intersect.normal = normalize(cross(triangle.v1 - triangle.v2, triangle.v3 - triangle.v2));
-            SMaterial material = materials[triangle.MaterialId];
-            intersect.color = material.color;
-            intersect.lightCoeffs = material.lightCoeffs;
-            intersect.reflectionCoef = material.reflectionCoef;
-            intersect.refractionCoef = material.refractionCoef;
-            intersect.MaterialType = material.MaterialType;
+        if(IntersectTriangle(ray, triangles[i], test) && test < intersect.time) {
+            intersect.time = test;
+            intersect.point = ray.origin + ray.direction * test;
+            intersect.normal = normalize(cross(triangles[i].v2 - triangles[i].v1, triangles[i].v3 - triangles[i].v1));
+            intersect.MaterialId = triangles[i].MaterialId;
             result = true;
         }
     }
@@ -168,35 +151,30 @@ bool Raytrace(SRay ray, float start, float final, inout SIntersection intersect)
 }
 
 float Shadow(SLight currLight, SIntersection intersect) {
-    // Point is lighted
     float shadowing = 1.0;
-    // Vector to the light source
     vec3 direction = normalize(currLight.position - intersect.point);
-    // Distance to the light source
     float distanceLight = distance(currLight.position, intersect.point);
-    // Generation shadow ray for this light source
     SRay shadowRay = SRay(intersect.point + direction * EPSILON, direction);
-    // ...test intersection this ray with each scene object
     SIntersection shadowIntersect;
-    shadowIntersect.time = BIG;
-    // trace ray from shadow ray begining to light source position
     if (Raytrace(shadowRay, 0, distanceLight, shadowIntersect)) {
-        // this light source is invisible in the intercection point
-        shadowing = 0.0;
+        //shadowing = 0.0f;
+        shadowing = 0.2f;
+        //shadowing = shadowIntersect.time / distanceLight;
     }
     return shadowing;
 }
 
 vec3 Phong(SIntersection intersect, SLight currLight, float shadow) {
-    int Unit = 0;
     vec3 light = normalize(currLight.position - intersect.point);
     float diffuse = max(dot(light, intersect.normal), 0.0);
-    vec3 view = normalize(uCamera.position - intersect.point);
-    vec3 reflected= reflect(-view, intersect.normal);
-    float specular = pow(max(dot(reflected, light), 0.0), intersect.lightCoeffs.w);
-    return intersect.lightCoeffs.x * intersect.color +
-           intersect.lightCoeffs.y * diffuse * intersect.color * shadow +
-           intersect.lightCoeffs.z * specular * Unit;
+    vec3 view = normalize(intersect.point - uCamera.position);
+    vec3 reflected = reflect(view, intersect.normal);
+    vec4 lightCoeffs = materials[intersect.MaterialId].lightCoeffs;
+    vec3 color = materials[intersect.MaterialId].color;
+    float specular = pow(max(dot(reflected, light), 0.0), lightCoeffs.w);
+    return lightCoeffs.x * color +
+           lightCoeffs.y * diffuse * color * shadow +
+           lightCoeffs.z * specular * shadow;
 }
 
 struct STracingRay {
@@ -249,22 +227,25 @@ void main()
         start = 0;
         final = BIG;
         if (Raytrace(ray, start, final, intersect)) {
-            switch(intersect.MaterialType) {
+            SMaterial material = materials[intersect.MaterialId];
+            switch(material.MaterialType) {
                 case DIFFUSE_REFLECTION: {
                     float shadowing = Shadow(uLight, intersect);
                     resultColor += trRay.contribution * Phong ( intersect, uLight, shadowing );
                     break;
                 }
                 case MIRROR_REFLECTION: {
-                    if(intersect.reflectionCoef < 1) {
-                        float contribution = trRay.contribution * (1 - intersect.reflectionCoef);
+                    if(material.reflectionCoef < 1) {
+                        float contribution = trRay.contribution * (1 - material.reflectionCoef);
                         float shadowing = Shadow(uLight, intersect);
                         resultColor += contribution * Phong(intersect, uLight, shadowing);
                     }
                     vec3 reflectDirection = reflect(ray.direction, intersect.normal);
                     // creare reflection ray
-                    float contribution = trRay.contribution * intersect.reflectionCoef;
+                    float contribution = trRay.contribution * material.reflectionCoef;
                     STracingRay reflectRay = STracingRay( SRay(intersect.point + reflectDirection * EPSILON, reflectDirection), contribution, trRay.depth + 1);
+                    if (reflectRay.depth > 6)
+                        break;
                     pushRay(reflectRay);
                     break;
                 }
