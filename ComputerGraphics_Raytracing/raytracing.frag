@@ -88,17 +88,17 @@ bool IntersectTriangle(SRay ray, STriangle triangle, out float time) {
     vec3 edge1 = v2 - v1;
     vec3 VP1 = P - v1;
     C = cross(edge1, VP1);
-    if (dot(N, C) < -EPSILON)
+    if (dot(N, C) < 0)
         return false;
     vec3 edge2 = v3 - v2;
     vec3 VP2 = P - v2;
     C = cross(edge2, VP2);
-    if (dot(N, C) < -EPSILON)
+    if (dot(N, C) < 0)
         return false;
     vec3 edge3 = v1 - v3;
     vec3 VP3 = P - v3;
     C = cross(edge3, VP3);
-    if (dot(N, C) < -EPSILON)
+    if (dot(N, C) < 0)
         return false;
     time = t;
     return true;
