@@ -5,9 +5,9 @@ using OpenTK.Mathematics;
 
 namespace ComputerGraphics_Raytracing
 {
-    class Shaders
+    public class Shaders
     {
-        private int programID;
+        private readonly int programID;
 
         public Shaders(string vertex_filename, string fragment_filename)
         {
@@ -91,6 +91,17 @@ namespace ComputerGraphics_Raytracing
             GL.Uniform2(loc, x, y);
         }
 
+        public void Uniform2(string name, Vector2 v)
+        {
+            int loc = GL.GetUniformLocation(programID, name);
+            if (loc == -1)
+            {
+                Console.WriteLine($"uniform2v: name \"{name}\" does not correspond to an active uniform variable");
+                return;
+            }
+            GL.Uniform2(loc, v);
+        }
+
         public void Uniform3(string name, int x, int y, int z)
         {
             int loc = GL.GetUniformLocation(programID, name);
@@ -113,6 +124,17 @@ namespace ComputerGraphics_Raytracing
             GL.Uniform3(loc, x, y, z);
         }
 
+        public void Uniform3(string name, Vector3 v)
+        {
+            int loc = GL.GetUniformLocation(programID, name);
+            if (loc == -1)
+            {
+                Console.WriteLine($"uniform3v: name \"{name}\" does not correspond to an active uniform variable");
+                return;
+            }
+            GL.Uniform3(loc, v);
+        }
+
         public void Uniform4(string name, int x, int y, int z, int w)
         {
             int loc = GL.GetUniformLocation(programID, name);
@@ -133,6 +155,17 @@ namespace ComputerGraphics_Raytracing
                 return;
             }
             GL.Uniform4(loc, x, y, z, w);
+        }
+
+        public void Uniform4(string name, Vector4 v)
+        {
+            int loc = GL.GetUniformLocation(programID, name);
+            if (loc == -1)
+            {
+                Console.WriteLine($"uniform4v: name \"{name}\" does not correspond to an active uniform variable");
+                return;
+            }
+            GL.Uniform4(loc, v);
         }
 
         private static int CreateShader(string filename, ShaderType type)

@@ -4,8 +4,10 @@ out vec4 color;
 
 #define EPSILON 0.001
 #define BIG 1000000.0
-const int DIFFUSE_REFLECTION = 1;
-const int MIRROR_REFLECTION = 2;
+const int DEFAULT = 1;
+const int LIGHT = 2;
+const int GLASS = 3;
+uniform int MAX_DEPTH;
 
 struct SCamera {
     vec3 position;
@@ -41,8 +43,10 @@ struct STriangle {
     int MaterialId;
 };
 
-uniform STriangle triangles[12];
-uniform SSphere spheres[2];
+uniform STriangle triangles[20];
+uniform int triangles_used;
+uniform SSphere spheres[10];
+uniform int spheres_used;
 
 bool IntersectSphere(SRay ray, SSphere sphere, out float time) {
     time = -1;
@@ -84,7 +88,7 @@ bool IntersectTriangle(SRay ray, STriangle triangle, out float time) {
     vec3 edge1 = v2 - v1;
     vec3 VP1 = P - v1;
     C = cross(edge1, VP1);
-    if (dot(N, C) < 0)
+    if (dot(N, C) < -EPSILON)
         return false;
     vec3 edge2 = v3 - v2;
     vec3 VP2 = P - v2;
@@ -112,23 +116,23 @@ struct SLight {
 };
 
 struct SMaterial {
-    vec3 color; // diffuse color
+    vec3 color;
     vec4 lightCoeffs; // ambient, diffuse and specular coeffs
-    // 0 - non-reflection, 1 - mirror
     float reflectionCoef;
     float refractionCoef;
+    float refractionIndex;
     int MaterialType;
 };
 
 uniform SLight uLight;
-uniform SMaterial materials[6];
+uniform SMaterial materials[10];
 
-bool Raytrace(SRay ray, float start, float final, inout SIntersection intersect) {
+bool Raytrace(SRay ray, float final, inout SIntersection intersect) {
     bool result = false;
     float test;
     intersect.time = final;
     //calculate intersect with spheres
-    for (int i = 0; i < spheres.length(); i++) {
+    for (int i = 0; i < spheres_used; i++) {
         if (IntersectSphere(ray, spheres[i], test) && test < intersect.time) {
             intersect.time = test;
             intersect.point = ray.origin + ray.direction * test;
@@ -138,7 +142,7 @@ bool Raytrace(SRay ray, float start, float final, inout SIntersection intersect)
         }
     }
     //calculate intersect with triangles
-    for (int i = 0; i < triangles.length(); i++) {
+    for (int i = 0; i < triangles_used; i++) {
         if(IntersectTriangle(ray, triangles[i], test) && test < intersect.time) {
             intersect.time = test;
             intersect.point = ray.origin + ray.direction * test;
@@ -156,102 +160,118 @@ float Shadow(SLight currLight, SIntersection intersect) {
     float distanceLight = distance(currLight.position, intersect.point);
     SRay shadowRay = SRay(intersect.point + direction * EPSILON, direction);
     SIntersection shadowIntersect;
-    if (Raytrace(shadowRay, 0, distanceLight, shadowIntersect)) {
-        //shadowing = 0.0f;
-        shadowing = 0.2f;
-        //shadowing = shadowIntersect.time / distanceLight;
-    }
+    if (Raytrace(shadowRay, distanceLight, shadowIntersect) && materials[shadowIntersect.MaterialId].MaterialType != LIGHT)
+        shadowing = 0.1f;
     return shadowing;
 }
 
-vec3 Phong(SIntersection intersect, SLight currLight, float shadow) {
+vec3 Phong(SIntersection intersect, SLight currLight, float shadow, vec3 origin) {
     vec3 light = normalize(currLight.position - intersect.point);
-    float diffuse = max(dot(light, intersect.normal), 0.0);
-    vec3 view = normalize(intersect.point - uCamera.position);
+    float diffuse = max(dot(light, intersect.normal), 0.0f);
+    vec3 view = normalize(intersect.point - origin);
     vec3 reflected = reflect(view, intersect.normal);
     vec4 lightCoeffs = materials[intersect.MaterialId].lightCoeffs;
     vec3 color = materials[intersect.MaterialId].color;
-    float specular = pow(max(dot(reflected, light), 0.0), lightCoeffs.w);
+    float specular = pow(max(dot(reflected, light), 0.0f), lightCoeffs.w);
+    int unit = shadow == 1.0f ? 1 : 0;
     return lightCoeffs.x * color +
            lightCoeffs.y * diffuse * color * shadow +
-           lightCoeffs.z * specular * shadow;
+           lightCoeffs.z * specular * unit;
 }
 
 struct STracingRay {
     SRay ray;
     float contribution;
     int depth;
+    float refractionIndex;
 };
 
-STracingRay arr[11];
-int id = -1;
+STracingRay stack[11];
+int stack_id = -1;
+
 void pushRay(STracingRay trRay) {
-    id++;
-    arr[id] = trRay;
+    stack_id++;
+    stack[stack_id] = trRay;
 }
+
 bool isEmpty() {
-    return id == -1;
+    return stack_id == -1;
 }
+
 STracingRay popRay() {
-    return arr[id--];
+    return stack[stack_id--];
 }
 
 void main()
 {
-    /*SRay ray = GenerateRay();
-    color = vec4(abs(ray.direction.xy), 0, 1.0);*/
-    /*float start = 0;
     float final = BIG;
     SRay ray = GenerateRay();
     SIntersection intersect;
     intersect.time = BIG;
-    vec3 resultColor = vec3(0,0,0);
-    if (Raytrace(ray, start, final, intersect)) {
-        resultColor = intersect.color;
-    }
-    color = vec4(resultColor, 1.0);*/
-    float start = 0;
-    float final = BIG;
-    SRay ray = GenerateRay();
-    SIntersection intersect;
-    intersect.time = BIG;
-    vec3 resultColor = vec3(0,0,0);
+    vec3 resultColor = vec3(0.0f, 0.0f, 0.0f);
 
-    STracingRay trRay = STracingRay(ray, 1, 0);
+    STracingRay trRay = STracingRay(ray, 1.0f, 0, 1.0f);
     pushRay(trRay);
     while(!isEmpty()) {
         STracingRay trRay = popRay();
         ray = trRay.ray;
         SIntersection intersect;
-        intersect.time = BIG;
-        start = 0;
         final = BIG;
-        if (Raytrace(ray, start, final, intersect)) {
+        if (Raytrace(ray, final, intersect)) {
             SMaterial material = materials[intersect.MaterialId];
-            switch(material.MaterialType) {
-                case DIFFUSE_REFLECTION: {
-                    float shadowing = Shadow(uLight, intersect);
-                    resultColor += trRay.contribution * Phong ( intersect, uLight, shadowing );
-                    break;
-                }
-                case MIRROR_REFLECTION: {
-                    if(material.reflectionCoef < 1) {
-                        float contribution = trRay.contribution * (1 - material.reflectionCoef);
+            switch (material.MaterialType) {
+                case DEFAULT: {
+                    float diffuse_contrib = trRay.contribution * (1.0f - material.reflectionCoef);
+                    if (diffuse_contrib > EPSILON) {
                         float shadowing = Shadow(uLight, intersect);
-                        resultColor += contribution * Phong(intersect, uLight, shadowing);
+                        resultColor += diffuse_contrib * Phong(intersect, uLight, shadowing, trRay.ray.origin);
                     }
-                    vec3 reflectDirection = reflect(ray.direction, intersect.normal);
-                    // creare reflection ray
-                    float contribution = trRay.contribution * material.reflectionCoef;
-                    STracingRay reflectRay = STracingRay( SRay(intersect.point + reflectDirection * EPSILON, reflectDirection), contribution, trRay.depth + 1);
-                    if (reflectRay.depth > 6)
+                    if (trRay.depth >= MAX_DEPTH)
                         break;
-                    pushRay(reflectRay);
+
+                    float mirror_contrib = trRay.contribution * material.reflectionCoef;
+                    if (mirror_contrib > EPSILON) {
+                        vec3 reflectDirection = reflect(ray.direction, intersect.normal);
+                        STracingRay reflectRay = STracingRay(SRay(intersect.point + reflectDirection * EPSILON, reflectDirection), mirror_contrib, trRay.depth + 1, material.refractionIndex);
+                        pushRay(reflectRay);
+                    }
                     break;
                 }
-            } // switch
-        } // if (Raytrace(ray, start, final, intersect))
-    } // while(!isEmpty())
+                case LIGHT: {
+                    resultColor += trRay.contribution * material.color;
+                    break;
+                }
+                case GLASS: {
+                    float diffuse_contrib = trRay.contribution; // for specular light
+                    float shadowing = Shadow(uLight, intersect);
+                    resultColor += diffuse_contrib * Phong(intersect, uLight, shadowing, trRay.ray.origin);
+                    if (trRay.depth >= MAX_DEPTH)
+                        break;
+                    
+                    float eta = trRay.refractionIndex / material.refractionIndex;
+                    if (dot(ray.direction, intersect.normal) >= 0.0f) {
+                        intersect.normal = -intersect.normal;
+                        eta = material.refractionIndex / trRay.refractionIndex;
+                    }
+
+                    float refract_contrib = trRay.contribution * material.refractionCoef;
+                    if (refract_contrib > EPSILON) {
+                        vec3 refractDirection = refract(ray.direction, intersect.normal, eta);
+                        STracingRay refractRay = STracingRay(SRay(intersect.point + refractDirection * EPSILON, refractDirection), refract_contrib, trRay.depth + 1, material.refractionIndex);
+                        pushRay(refractRay);
+                    }
+
+                    float mirror_contrib = trRay.contribution * material.reflectionCoef;
+                    if (mirror_contrib > EPSILON) {
+                        vec3 reflectDirection = reflect(ray.direction, intersect.normal);
+                        STracingRay reflectRay = STracingRay(SRay(intersect.point + reflectDirection * EPSILON, reflectDirection), mirror_contrib, trRay.depth + 1, material.refractionIndex);
+                        pushRay(reflectRay);
+                    }
+                    break;
+                }
+            }
+        }
+    }
 
     color = vec4(resultColor, 1.0);
 }
