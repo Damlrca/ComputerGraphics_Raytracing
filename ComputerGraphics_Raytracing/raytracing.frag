@@ -183,7 +183,6 @@ struct STracingRay {
     SRay ray;
     float contribution;
     int depth;
-    float refractionIndex;
 };
 
 STracingRay stack[11];
@@ -210,7 +209,7 @@ void main()
     intersect.time = BIG;
     vec3 resultColor = vec3(0.0f, 0.0f, 0.0f);
 
-    STracingRay trRay = STracingRay(ray, 1.0f, 0, 1.0f);
+    STracingRay trRay = STracingRay(ray, 1.0f, 0);
     pushRay(trRay);
     while(!isEmpty()) {
         STracingRay trRay = popRay();
@@ -232,7 +231,7 @@ void main()
                     float mirror_contrib = trRay.contribution * material.reflectionCoef;
                     if (mirror_contrib > EPSILON) {
                         vec3 reflectDirection = reflect(ray.direction, intersect.normal);
-                        STracingRay reflectRay = STracingRay(SRay(intersect.point + reflectDirection * EPSILON, reflectDirection), mirror_contrib, trRay.depth + 1, material.refractionIndex);
+                        STracingRay reflectRay = STracingRay(SRay(intersect.point + reflectDirection * EPSILON, reflectDirection), mirror_contrib, trRay.depth + 1);
                         pushRay(reflectRay);
                     }
                     break;
@@ -248,23 +247,23 @@ void main()
                     if (trRay.depth >= MAX_DEPTH)
                         break;
                     
-                    float eta = trRay.refractionIndex / material.refractionIndex;
+                    float eta = 1.0f / material.refractionIndex;
                     if (dot(ray.direction, intersect.normal) >= 0.0f) {
                         intersect.normal = -intersect.normal;
-                        eta = material.refractionIndex / trRay.refractionIndex;
+                        eta = material.refractionIndex / 1.0f;
                     }
 
                     float refract_contrib = trRay.contribution * material.refractionCoef;
                     if (refract_contrib > EPSILON) {
                         vec3 refractDirection = refract(ray.direction, intersect.normal, eta);
-                        STracingRay refractRay = STracingRay(SRay(intersect.point + refractDirection * EPSILON, refractDirection), refract_contrib, trRay.depth + 1, material.refractionIndex);
+                        STracingRay refractRay = STracingRay(SRay(intersect.point + refractDirection * EPSILON, refractDirection), refract_contrib, trRay.depth + 1);
                         pushRay(refractRay);
                     }
 
                     float mirror_contrib = trRay.contribution * material.reflectionCoef;
                     if (mirror_contrib > EPSILON) {
                         vec3 reflectDirection = reflect(ray.direction, intersect.normal);
-                        STracingRay reflectRay = STracingRay(SRay(intersect.point + reflectDirection * EPSILON, reflectDirection), mirror_contrib, trRay.depth + 1, material.refractionIndex);
+                        STracingRay reflectRay = STracingRay(SRay(intersect.point + reflectDirection * EPSILON, reflectDirection), mirror_contrib, trRay.depth + 1);
                         pushRay(reflectRay);
                     }
                     break;

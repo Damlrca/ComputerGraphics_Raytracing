@@ -54,7 +54,7 @@ namespace ComputerGraphics_Raytracing
                 right = new Vector3(1.0f, 0.0f, 0.0f),
                 scale = new Vector2((float)Size.X / Size.Y, 1.0f)
             };
-            //camera.view.Normalize();
+            camera.view.Normalize();
             camera.up.Normalize();
             camera.right.Normalize();
 
@@ -66,7 +66,7 @@ namespace ComputerGraphics_Raytracing
             rotationMatrixYR = Matrix3.CreateRotationY(-angle);
             rotationMatrixYL = Matrix3.CreateRotationY(angle);
 
-            MAX_DEPTH = 1;
+            MAX_DEPTH = 4;
             shaders.Uniform1("MAX_DEPTH", MAX_DEPTH);
         }
 
@@ -99,16 +99,16 @@ namespace ComputerGraphics_Raytracing
             }
 
             // UP DOWN RIGHT LEFT
-            Matrix3 rotationRightR = Matrix3.CreateFromAxisAngle(camera.right, angle);
-            Matrix3 rotationRightL = Matrix3.CreateFromAxisAngle(camera.right, -angle);
             if (input.IsKeyDown(Keys.Up))
             {
+                Matrix3 rotationRightR = Matrix3.CreateFromAxisAngle(camera.right, angle);
                 camera.view = rotationRightR * camera.view;
                 camera.up = rotationRightR * camera.up;
                 camera.right = rotationRightR * camera.right;
             }
             if (input.IsKeyDown(Keys.Down))
             {
+                Matrix3 rotationRightL = Matrix3.CreateFromAxisAngle(camera.right, -angle);
                 camera.view = rotationRightL * camera.view;
                 camera.up = rotationRightL * camera.up;
                 camera.right = rotationRightL * camera.right;
@@ -129,11 +129,13 @@ namespace ComputerGraphics_Raytracing
             // W A S D SPACE SHIFT
             if (input.IsKeyDown(Keys.W))
             {
-                camera.position += camera.view / 10;
+                Vector3 dir = Vector3.Normalize(Vector3.Cross(camera.right, new Vector3(0, 1, 0)));
+                camera.position += dir / 10;
             }
             if (input.IsKeyDown(Keys.S))
             {
-                camera.position += -camera.view / 10;
+                Vector3 dir = Vector3.Normalize(Vector3.Cross(camera.right, new Vector3(0, 1, 0)));
+                camera.position += -dir / 10;
             }
             if (input.IsKeyDown(Keys.D))
             {
