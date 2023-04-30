@@ -42,7 +42,7 @@ namespace ComputerGraphics_Raytracing
             };
 
             float phi = (float)((Math.Sqrt(5) + 1) / 2);
-            float n = 1, x = 0, y = 0, z = 0;
+            float n = 4, x = 2.5f, y = -3.0f, z = 0.0f;
             float s = (float)Math.Sin(Math.PI / 10);
 
             Vector3[] Dodecahedron = new Vector3[]
@@ -140,14 +140,205 @@ namespace ComputerGraphics_Raytracing
             shaders.Uniform1("triangles[11].MaterialId", 0);
 
             // DODECAHEDRON
+            
+            // 1 Pentagon
+            shaders.Uniform3("triangles[12].v1", Dodecahedron[0]);
+            shaders.Uniform3("triangles[12].v2", Dodecahedron[1]);
+            shaders.Uniform3("triangles[12].v3", Dodecahedron[12]);
+            shaders.Uniform1("triangles[12].MaterialId", 7);
 
+            shaders.Uniform3("triangles[13].v1", Dodecahedron[0]);
+            shaders.Uniform3("triangles[13].v2", Dodecahedron[12]);
+            shaders.Uniform3("triangles[13].v3", Dodecahedron[5]);
+            shaders.Uniform1("triangles[13].MaterialId", 7);
 
+            shaders.Uniform3("triangles[14].v1", Dodecahedron[0]);
+            shaders.Uniform3("triangles[14].v2", Dodecahedron[5]);
+            shaders.Uniform3("triangles[14].v3", Dodecahedron[13]);
+            shaders.Uniform1("triangles[14].MaterialId", 7);
+            
+            // 2 Pentagon
+            shaders.Uniform3("triangles[15].v1", Dodecahedron[1]);
+            shaders.Uniform3("triangles[15].v2", Dodecahedron[0]);
+            shaders.Uniform3("triangles[15].v3", Dodecahedron[15]);
+            shaders.Uniform1("triangles[15].MaterialId", 7);
+
+            shaders.Uniform3("triangles[16].v1", Dodecahedron[15]);
+            shaders.Uniform3("triangles[16].v2", Dodecahedron[0]);
+            shaders.Uniform3("triangles[16].v3", Dodecahedron[9]);
+            shaders.Uniform1("triangles[16].MaterialId", 7);
+
+            shaders.Uniform3("triangles[17].v1", Dodecahedron[9]);
+            shaders.Uniform3("triangles[17].v2", Dodecahedron[0]);
+            shaders.Uniform3("triangles[17].v3", Dodecahedron[14]);
+            shaders.Uniform1("triangles[17].MaterialId", 7);
+            
+            // 3 Pentagon
+            shaders.Uniform3("triangles[18].v1", Dodecahedron[3]);
+            shaders.Uniform3("triangles[18].v2", Dodecahedron[2]);
+            shaders.Uniform3("triangles[18].v3", Dodecahedron[18]);
+            shaders.Uniform1("triangles[18].MaterialId", 7);
+
+            shaders.Uniform3("triangles[19].v1", Dodecahedron[18]);
+            shaders.Uniform3("triangles[19].v2", Dodecahedron[2]);
+            shaders.Uniform3("triangles[19].v3", Dodecahedron[8]);
+            shaders.Uniform1("triangles[19].MaterialId", 7);
+
+            shaders.Uniform3("triangles[20].v1", Dodecahedron[8]);
+            shaders.Uniform3("triangles[20].v2", Dodecahedron[2]);
+            shaders.Uniform3("triangles[20].v3", Dodecahedron[19]);
+            shaders.Uniform1("triangles[20].MaterialId", 7);
+            
+            // 4 Pentagon
+            shaders.Uniform3("triangles[21].v1", Dodecahedron[17]);
+            shaders.Uniform3("triangles[21].v2", Dodecahedron[2]);
+            shaders.Uniform3("triangles[21].v3", Dodecahedron[3]);
+            shaders.Uniform1("triangles[21].MaterialId", 7);
+
+            shaders.Uniform3("triangles[22].v1", Dodecahedron[4]);
+            shaders.Uniform3("triangles[22].v2", Dodecahedron[2]);
+            shaders.Uniform3("triangles[22].v3", Dodecahedron[17]);
+            shaders.Uniform1("triangles[22].MaterialId", 7);
+
+            shaders.Uniform3("triangles[23].v1", Dodecahedron[16]);
+            shaders.Uniform3("triangles[23].v2", Dodecahedron[2]);
+            shaders.Uniform3("triangles[23].v3", Dodecahedron[4]);
+            shaders.Uniform1("triangles[23].MaterialId", 7);
+
+            // 5 Pentagon
+            shaders.Uniform3("triangles[24].v1", Dodecahedron[4]);
+            shaders.Uniform3("triangles[24].v2", Dodecahedron[5]);
+            shaders.Uniform3("triangles[24].v3", Dodecahedron[12]);
+            shaders.Uniform1("triangles[24].MaterialId", 7);
+
+            shaders.Uniform3("triangles[25].v1", Dodecahedron[4]);
+            shaders.Uniform3("triangles[25].v2", Dodecahedron[12]);
+            shaders.Uniform3("triangles[25].v3", Dodecahedron[6]);
+            shaders.Uniform1("triangles[25].MaterialId", 7);
+
+            shaders.Uniform3("triangles[26].v1", Dodecahedron[4]);
+            shaders.Uniform3("triangles[26].v2", Dodecahedron[6]);
+            shaders.Uniform3("triangles[26].v3", Dodecahedron[16]);
+            shaders.Uniform1("triangles[26].MaterialId", 7);
+            
+            // 6 Pentagon
+            shaders.Uniform3("triangles[27].v1", Dodecahedron[5]);
+            shaders.Uniform3("triangles[27].v2", Dodecahedron[4]);
+            shaders.Uniform3("triangles[27].v3", Dodecahedron[13]);
+            shaders.Uniform1("triangles[27].MaterialId", 7);
+    
+            shaders.Uniform3("triangles[28].v1", Dodecahedron[13]);
+            shaders.Uniform3("triangles[28].v2", Dodecahedron[4]);
+            shaders.Uniform3("triangles[28].v3", Dodecahedron[11]);
+            shaders.Uniform1("triangles[28].MaterialId", 7);
+    
+            shaders.Uniform3("triangles[29].v1", Dodecahedron[11]);
+            shaders.Uniform3("triangles[29].v2", Dodecahedron[4]);
+            shaders.Uniform3("triangles[29].v3", Dodecahedron[17]);
+            shaders.Uniform1("triangles[29].MaterialId", 7);
+
+            // 7 Pentagon
+            shaders.Uniform3("triangles[30].v1", Dodecahedron[6]);
+            shaders.Uniform3("triangles[30].v2", Dodecahedron[7]);
+            shaders.Uniform3("triangles[30].v3", Dodecahedron[19]);
+            shaders.Uniform1("triangles[30].MaterialId", 7);
+
+            shaders.Uniform3("triangles[31].v1", Dodecahedron[6]);
+            shaders.Uniform3("triangles[31].v2", Dodecahedron[19]);
+            shaders.Uniform3("triangles[31].v3", Dodecahedron[2]);
+            shaders.Uniform1("triangles[31].MaterialId", 7);
+
+            shaders.Uniform3("triangles[32].v1", Dodecahedron[6]);
+            shaders.Uniform3("triangles[32].v2", Dodecahedron[2]);
+            shaders.Uniform3("triangles[32].v3", Dodecahedron[16]);
+            shaders.Uniform1("triangles[32].MaterialId", 7);
+
+            // 8 Pentagon
+            shaders.Uniform3("triangles[33].v1", Dodecahedron[7]);
+            shaders.Uniform3("triangles[33].v2", Dodecahedron[6]);
+            shaders.Uniform3("triangles[33].v3", Dodecahedron[15]);
+            shaders.Uniform1("triangles[33].MaterialId", 7);
+
+            shaders.Uniform3("triangles[34].v1", Dodecahedron[15]);
+            shaders.Uniform3("triangles[34].v2", Dodecahedron[6]);
+            shaders.Uniform3("triangles[34].v3", Dodecahedron[1]);
+            shaders.Uniform1("triangles[34].MaterialId", 7);
+
+            shaders.Uniform3("triangles[35].v1", Dodecahedron[1]);
+            shaders.Uniform3("triangles[35].v2", Dodecahedron[6]);
+            shaders.Uniform3("triangles[35].v3", Dodecahedron[12]);
+            shaders.Uniform1("triangles[35].MaterialId", 7);
+            
+            // 9 Pentagon
+            shaders.Uniform3("triangles[36].v1", Dodecahedron[9]);
+            shaders.Uniform3("triangles[36].v2", Dodecahedron[8]);
+            shaders.Uniform3("triangles[36].v3", Dodecahedron[15]);
+            shaders.Uniform1("triangles[36].MaterialId", 7);
+
+            shaders.Uniform3("triangles[37].v1", Dodecahedron[15]);
+            shaders.Uniform3("triangles[37].v2", Dodecahedron[8]);
+            shaders.Uniform3("triangles[37].v3", Dodecahedron[7]);
+            shaders.Uniform1("triangles[37].MaterialId", 7);
+
+            shaders.Uniform3("triangles[38].v1", Dodecahedron[7]);
+            shaders.Uniform3("triangles[38].v2", Dodecahedron[8]);
+            shaders.Uniform3("triangles[38].v3", Dodecahedron[19]);
+            shaders.Uniform1("triangles[38].MaterialId", 7);
+            
+            // 10 Pentagon
+            shaders.Uniform3("triangles[39].v1", Dodecahedron[8]);
+            shaders.Uniform3("triangles[39].v2", Dodecahedron[9]);
+            shaders.Uniform3("triangles[39].v3", Dodecahedron[14]);
+            shaders.Uniform1("triangles[39].MaterialId", 7);
+
+            shaders.Uniform3("triangles[40].v1", Dodecahedron[8]);
+            shaders.Uniform3("triangles[40].v2", Dodecahedron[14]);
+            shaders.Uniform3("triangles[40].v3", Dodecahedron[10]);
+            shaders.Uniform1("triangles[40].MaterialId", 7);
+
+            shaders.Uniform3("triangles[41].v1", Dodecahedron[8]);
+            shaders.Uniform3("triangles[41].v2", Dodecahedron[10]);
+            shaders.Uniform3("triangles[41].v3", Dodecahedron[18]);
+            shaders.Uniform1("triangles[41].MaterialId", 7);
+            
+            // 11 Pentagon
+            shaders.Uniform3("triangles[42].v1", Dodecahedron[10]);
+            shaders.Uniform3("triangles[42].v2", Dodecahedron[11]);
+            shaders.Uniform3("triangles[42].v3", Dodecahedron[17]);
+            shaders.Uniform1("triangles[42].MaterialId", 7);
+
+            shaders.Uniform3("triangles[43].v1", Dodecahedron[10]);
+            shaders.Uniform3("triangles[43].v2", Dodecahedron[17]);
+            shaders.Uniform3("triangles[43].v3", Dodecahedron[3]);
+            shaders.Uniform1("triangles[43].MaterialId", 7);
+
+            shaders.Uniform3("triangles[44].v1", Dodecahedron[10]);
+            shaders.Uniform3("triangles[44].v2", Dodecahedron[3]);
+            shaders.Uniform3("triangles[44].v3", Dodecahedron[18]);
+            shaders.Uniform1("triangles[44].MaterialId", 7);
+            
+            // 12 Pentagon
+            shaders.Uniform3("triangles[45].v1", Dodecahedron[11]);
+            shaders.Uniform3("triangles[45].v2", Dodecahedron[10]);
+            shaders.Uniform3("triangles[45].v3", Dodecahedron[13]);
+            shaders.Uniform1("triangles[45].MaterialId", 7);
+
+            shaders.Uniform3("triangles[46].v1", Dodecahedron[13]);
+            shaders.Uniform3("triangles[46].v2", Dodecahedron[10]);
+            shaders.Uniform3("triangles[46].v3", Dodecahedron[0]);
+            shaders.Uniform1("triangles[46].MaterialId", 7);
+
+            shaders.Uniform3("triangles[47].v1", Dodecahedron[0]);
+            shaders.Uniform3("triangles[47].v2", Dodecahedron[10]);
+            shaders.Uniform3("triangles[47].v3", Dodecahedron[14]);
+            shaders.Uniform1("triangles[47].MaterialId", 7);
+            
             // SPHERES
             shaders.Uniform1("spheres_used", 3);
 
             // big sphere: sphere 0
-            shaders.Uniform3("spheres[0].center", -1.0f, -1.0f, -2.0f);
-            shaders.Uniform1("spheres[0].radius", 2.0f);
+            shaders.Uniform3("spheres[0].center", -1.5f, -1.0f, -2.0f);
+            shaders.Uniform1("spheres[0].radius", 1.4f);
             shaders.Uniform1("spheres[0].MaterialId", 4);
 
             // small sphere: sphere 1
