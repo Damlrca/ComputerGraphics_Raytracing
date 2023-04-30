@@ -1,5 +1,5 @@
 ﻿using OpenTK.Mathematics;
-using OpenTK.Windowing.Desktop;
+using System;
 
 namespace ComputerGraphics_Raytracing
 {
@@ -29,74 +29,118 @@ namespace ComputerGraphics_Raytracing
 
         public static void InitializeScene(Shaders shaders)
         {
-            // TRIANGLES (clockwise order of vectors!!!)
-            shaders.Uniform1("triangles_used", 12);
+            Vector3[] Cube = new Vector3[]
+            {
+                new Vector3(-5.0f, -5.0f, -5.0f),
+                new Vector3(-5.0f, -5.0f, 5.0f),
+                new Vector3(-5.0f, 5.0f, -5.0f),
+                new Vector3(-5.0f, 5.0f, 5.0f),
+                new Vector3(5.0f, -5.0f, -5.0f),
+                new Vector3(5.0f, -5.0f, 5.0f),
+                new Vector3(5.0f, 5.0f, -5.0f),
+                new Vector3(5.0f, 5.0f, 5.0f)
+            };
 
+            float phi = (float)((Math.Sqrt(5) + 1) / 2);
+            float n = 1, x = 0, y = 0, z = 0;
+            float s = (float)Math.Sin(Math.PI / 10);
+
+            Vector3[] Dodecahedron = new Vector3[]
+            {
+                new Vector3(-(n / (phi + 1)) / 2 + x, y, -n / 2 + z),
+                new Vector3((n / (phi + 1)) / 2 + x, y, -n / 2 + z),
+                new Vector3((n / (phi + 1)) / 2 + x, y, n / 2 + z),
+                new Vector3(-(n / (phi + 1)) / 2 + x, y, n / 2 + z),
+                new Vector3(x, -n / 2 + y, (n / (phi + 1)) / 2 + z),
+                new Vector3(x, -n / 2 + y, -(n / (phi + 1)) / 2 + z),
+                new Vector3(n / 2 + x, -(n / (phi + 1)) / 2 + y, z),
+                new Vector3(n / 2 + x, (n / (phi + 1)) / 2 + y, z),
+                new Vector3(x, n / 2 + y, (n / (phi + 1)) / 2 + z),
+                new Vector3(x, n / 2 + y, -(n / (phi + 1)) / 2 + z),
+                new Vector3(-n / 2 + x, (n / (phi + 1)) / 2 + y, z),
+                new Vector3(-n / 2 + x, -(n / (phi + 1)) / 2 + y, z),
+                new Vector3(n * s + x, -n * s + y, -n * s + z),
+                new Vector3(-n * s + x, -n * s + y, -n * s + z),
+                new Vector3(-n * s + x, n * s + y, -n * s + z),
+                new Vector3(n * s + x, n * s + y, -n * s + z),
+                new Vector3(n * s + x, -n * s + y, n * s + z),
+                new Vector3(-n * s + x, -n * s + y, n * s + z),
+                new Vector3(-n * s + x, n * s + y, n * s + z),
+                new Vector3(n * s + x, n * s + y, n * s + z)
+            };
+
+            // TRIANGLES (clockwise order of vectors!!!)
+            shaders.Uniform1("triangles_used", 48);
+
+            // CUBE
             // left wall: triangles 0, 1
-            shaders.Uniform3("triangles[0].v1", -5.0f, -5.0f, -5.0f);
-            shaders.Uniform3("triangles[0].v2", -5.0f, 5.0f, -5.0f);
-            shaders.Uniform3("triangles[0].v3", -5.0f, 5.0f, 5.0f);
+            shaders.Uniform3("triangles[0].v1", Cube[0]);
+            shaders.Uniform3("triangles[0].v2", Cube[2]);
+            shaders.Uniform3("triangles[0].v3", Cube[3]);
             shaders.Uniform1("triangles[0].MaterialId", 1);
 
-            shaders.Uniform3("triangles[1].v1", -5.0f, -5.0f, -5.0f);
-            shaders.Uniform3("triangles[1].v2", -5.0f, 5.0f, 5.0f);
-            shaders.Uniform3("triangles[1].v3", -5.0f, -5.0f, 5.0f);
+            shaders.Uniform3("triangles[1].v1", Cube[0]);
+            shaders.Uniform3("triangles[1].v2", Cube[3]);
+            shaders.Uniform3("triangles[1].v3", Cube[1]);
             shaders.Uniform1("triangles[1].MaterialId", 1);
 
             // right wall: triangles 2, 3
-            shaders.Uniform3("triangles[2].v1", 5.0f, -5.0f, 5.0f);
-            shaders.Uniform3("triangles[2].v2", 5.0f, 5.0f, 5.0f);
-            shaders.Uniform3("triangles[2].v3", 5.0f, 5.0f, -5.0f);
+            shaders.Uniform3("triangles[2].v1", Cube[5]);
+            shaders.Uniform3("triangles[2].v2", Cube[7]);
+            shaders.Uniform3("triangles[2].v3", Cube[6]);
             shaders.Uniform1("triangles[2].MaterialId", 3);
 
-            shaders.Uniform3("triangles[3].v1", 5.0f, -5.0f, 5.0f);
-            shaders.Uniform3("triangles[3].v2", 5.0f, 5.0f, -5.0f);
-            shaders.Uniform3("triangles[3].v3", 5.0f, -5.0f, -5.0f);
+            shaders.Uniform3("triangles[3].v1", Cube[5]);
+            shaders.Uniform3("triangles[3].v2", Cube[6]);
+            shaders.Uniform3("triangles[3].v3", Cube[4]);
             shaders.Uniform1("triangles[3].MaterialId", 3);
 
             // down wall: triangles 4, 5
-            shaders.Uniform3("triangles[4].v1", 5.0f, -5.0f, -5.0f);
-            shaders.Uniform3("triangles[4].v2", -5.0f, -5.0f, -5.0f);
-            shaders.Uniform3("triangles[4].v3", -5.0f, -5.0f, 5.0f);
+            shaders.Uniform3("triangles[4].v1", Cube[4]);
+            shaders.Uniform3("triangles[4].v2", Cube[0]);
+            shaders.Uniform3("triangles[4].v3", Cube[1]);
             shaders.Uniform1("triangles[4].MaterialId", 0);
 
-            shaders.Uniform3("triangles[5].v1", 5.0f, -5.0f, -5.0f);
-            shaders.Uniform3("triangles[5].v2", -5.0f, -5.0f, 5.0f);
-            shaders.Uniform3("triangles[5].v3", 5.0f, -5.0f, 5.0f);
+            shaders.Uniform3("triangles[5].v1", Cube[4]);
+            shaders.Uniform3("triangles[5].v2", Cube[1]);
+            shaders.Uniform3("triangles[5].v3", Cube[5]);
             shaders.Uniform1("triangles[5].MaterialId", 0);
 
             // up wall: triangles 6, 7
-            shaders.Uniform3("triangles[6].v1", -5.0f, 5.0f, -5.0f);
-            shaders.Uniform3("triangles[6].v2", 5.0f, 5.0f, -5.0f);
-            shaders.Uniform3("triangles[6].v3", 5.0f, 5.0f, 5.0f);
+            shaders.Uniform3("triangles[6].v1", Cube[2]);
+            shaders.Uniform3("triangles[6].v2", Cube[6]);
+            shaders.Uniform3("triangles[6].v3", Cube[7]);
             shaders.Uniform1("triangles[6].MaterialId", 0);
 
-            shaders.Uniform3("triangles[7].v1", -5.0f, 5.0f, -5.0f);
-            shaders.Uniform3("triangles[7].v2", 5.0f, 5.0f, 5.0f);
-            shaders.Uniform3("triangles[7].v3", -5.0f, 5.0f, 5.0f);
+            shaders.Uniform3("triangles[7].v1", Cube[2]);
+            shaders.Uniform3("triangles[7].v2", Cube[7]);
+            shaders.Uniform3("triangles[7].v3", Cube[3]);
             shaders.Uniform1("triangles[7].MaterialId", 0);
 
             // back wall: triangles 8, 9
-            shaders.Uniform3("triangles[8].v1", -5.0f, -5.0f, 5.0f);
-            shaders.Uniform3("triangles[8].v2", -5.0f, 5.0f, 5.0f);
-            shaders.Uniform3("triangles[8].v3", 5.0f, 5.0f, 5.0f);
+            shaders.Uniform3("triangles[8].v1", Cube[1]);
+            shaders.Uniform3("triangles[8].v2", Cube[3]);
+            shaders.Uniform3("triangles[8].v3", Cube[7]);
             shaders.Uniform1("triangles[8].MaterialId", 2);
 
-            shaders.Uniform3("triangles[9].v1", -5.0f, -5.0f, 5.0f);
-            shaders.Uniform3("triangles[9].v2", 5.0f, 5.0f, 5.0f);
-            shaders.Uniform3("triangles[9].v3", 5.0f, -5.0f, 5.0f);
+            shaders.Uniform3("triangles[9].v1", Cube[1]);
+            shaders.Uniform3("triangles[9].v2", Cube[7]);
+            shaders.Uniform3("triangles[9].v3", Cube[5]);
             shaders.Uniform1("triangles[9].MaterialId", 2);
 
             // front wall: triangles 10, 11
-            shaders.Uniform3("triangles[10].v1", 5.0f, -5.0f, -5.0f);
-            shaders.Uniform3("triangles[10].v2", -5.0f, 5.0f, -5.0f);
-            shaders.Uniform3("triangles[10].v3", -5.0f, -5.0f, -5.0f);
+            shaders.Uniform3("triangles[10].v1", Cube[4]);
+            shaders.Uniform3("triangles[10].v2", Cube[2]);
+            shaders.Uniform3("triangles[10].v3", Cube[0]);
             shaders.Uniform1("triangles[10].MaterialId", 0);
 
-            shaders.Uniform3("triangles[11].v1", 5.0f, -5.0f, -5.0f);
-            shaders.Uniform3("triangles[11].v2", 5.0f, 5.0f, -5.0f);
-            shaders.Uniform3("triangles[11].v3", -5.0f, 5.0f, -5.0f);
+            shaders.Uniform3("triangles[11].v1", Cube[4]);
+            shaders.Uniform3("triangles[11].v2", Cube[6]);
+            shaders.Uniform3("triangles[11].v3", Cube[2]);
             shaders.Uniform1("triangles[11].MaterialId", 0);
+
+            // DODECAHEDRON
+
 
             // SPHERES
             shaders.Uniform1("spheres_used", 3);
@@ -179,6 +223,14 @@ namespace ComputerGraphics_Raytracing
             shaders.Uniform1("materials[6].refractionCoef", 0.98f);
             shaders.Uniform1("materials[6].refractionIndex", 1.47f);
             shaders.Uniform1("materials[6].MaterialType", GLASS);
+
+            // 7: Purple material
+            shaders.Uniform3("materials[7].color", 0.5f, 0.0f, 0.5f);
+            shaders.Uniform4("materials[7].lightCoeffs", 0.4f, 0.9f, 0.6f, 10.0f);
+            shaders.Uniform1("materials[7].reflectionCoef", 0.1f);
+            shaders.Uniform1("materials[7].refractionCoef", 0.0f);
+            shaders.Uniform1("materials[7].refractionIndex", 0.0f);
+            shaders.Uniform1("materials[7].MaterialType", DEFAULT);
         }
     }
 }
