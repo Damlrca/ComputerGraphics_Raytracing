@@ -43,7 +43,7 @@ struct STriangle {
     int MaterialId;
 };
 
-uniform STriangle triangles[20];
+uniform STriangle triangles[50];
 uniform int triangles_used;
 uniform SSphere spheres[10];
 uniform int spheres_used;
