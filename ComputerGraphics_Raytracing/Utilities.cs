@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenTK.Mathematics;
+using OpenTK.Graphics.OpenGL4;
 
 namespace ComputerGraphics_Raytracing
 {
@@ -331,6 +332,18 @@ namespace ComputerGraphics_Raytracing
             shaders.Uniform3("triangles[47].v2", Dodecahedron[10]);
             shaders.Uniform3("triangles[47].v3", Dodecahedron[14]);
             shaders.Uniform1("triangles[47].MaterialId", 7);
+
+            for (int i = 0; i < 48; i++)
+            {
+                Vector3 v1 = shaders.GetUniform($"triangles[{i}].v1");
+                Vector3 v2 = shaders.GetUniform($"triangles[{i}].v2");
+                Vector3 v3 = shaders.GetUniform($"triangles[{i}].v3");
+                Vector3 norm = Vector3.Cross(v2 - v1, v3 - v1);
+                shaders.Uniform3($"triangles_norms[{i}].norm", norm);
+                shaders.Uniform3($"triangles_norms[{i}].norm1", Vector3.Cross(norm, v2 - v1));
+                shaders.Uniform3($"triangles_norms[{i}].norm2", Vector3.Cross(norm, v3 - v2));
+                shaders.Uniform3($"triangles_norms[{i}].norm3", Vector3.Cross(norm, v1 - v3));
+            }
 
             // SPHERES
             shaders.Uniform1("spheres_used", 3);

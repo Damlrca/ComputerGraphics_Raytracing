@@ -168,6 +168,15 @@ namespace ComputerGraphics_Raytracing
             GL.Uniform4(loc, v);
         }
 
+        public Vector3 GetUniform(string name)
+        {
+            float[] arr = new float[3];
+            int loc = GL.GetUniformLocation(programID, name);
+            GL.GetUniform(programID, loc, arr);
+            Vector3 v = new Vector3(arr[0], arr[1], arr[2]);
+            return v;
+        }
+
         private static int CreateShader(string filename, ShaderType type)
         {
             int shaderID = GL.CreateShader(type);

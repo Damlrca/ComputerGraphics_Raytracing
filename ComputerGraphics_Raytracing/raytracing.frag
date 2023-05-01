@@ -43,7 +43,15 @@ struct STriangle {
     int MaterialId;
 };
 
+struct STriangleNORMS {
+    vec3 norm;
+    vec3 norm1;
+    vec3 norm2;
+    vec3 norm3;
+};
+
 uniform STriangle triangles[50];
+uniform STriangleNORMS triangles_norms[50];
 uniform int triangles_used;
 uniform SSphere spheres[10];
 uniform int spheres_used;
@@ -69,14 +77,15 @@ bool IntersectSphere(SRay ray, SSphere sphere, out float time) {
     return false;
 }
 
-bool IntersectTriangle(SRay ray, STriangle triangle, out float time) {
-    vec3 v1 = triangle.v1;
-    vec3 v2 = triangle.v2;
-    vec3 v3 = triangle.v3;
+bool IntersectTriangle(SRay ray, int i, out float time) {
+    vec3 v1 = triangles[i].v1;
+    vec3 v2 = triangles[i].v2;
+    vec3 v3 = triangles[i].v3;
     time = -1;
-    vec3 A = v2 - v1;
-    vec3 B = v3 - v1;
-    vec3 N = cross(A, B);
+    //vec3 A = v2 - v1;
+    //vec3 B = v3 - v1;
+    //vec3 N = cross(A, B);
+    vec3 N = triangles_norms[i].norm;
     float NdotRayDirection = dot(N, ray.direction);
     if (NdotRayDirection > -EPSILON) // triangle is transparent at one side
         return false;
@@ -84,21 +93,21 @@ bool IntersectTriangle(SRay ray, STriangle triangle, out float time) {
     if (t < 0)
         return false;
     vec3 P = ray.origin + t * ray.direction;
-    vec3 C;
-    vec3 edge1 = v2 - v1;
-    vec3 VP1 = P - v1;
-    C = cross(edge1, VP1);
-    if (dot(N, C) < 0)
+    //vec3 C;
+    //vec3 edge1 = v2 - v1;
+    //vec3 VP1 = P - v1;
+    //C = cross(triangles_norms[i].norm1, P - v1);
+    if (dot(triangles_norms[i].norm1, P - v1) < 0)
         return false;
-    vec3 edge2 = v3 - v2;
-    vec3 VP2 = P - v2;
-    C = cross(edge2, VP2);
-    if (dot(N, C) < 0)
+    //vec3 edge2 = v3 - v2;
+    //vec3 VP2 = P - v2;
+    //C = cross(edge2, VP2);
+    if (dot(triangles_norms[i].norm2, P - v2) < 0)
         return false;
-    vec3 edge3 = v1 - v3;
-    vec3 VP3 = P - v3;
-    C = cross(edge3, VP3);
-    if (dot(N, C) < 0)
+    //vec3 edge3 = v1 - v3;
+    //vec3 VP3 = P - v3;
+    //C = cross(edge3, VP3);
+    if (dot(triangles_norms[i].norm3, P - v3) < 0)
         return false;
     time = t;
     return true;
@@ -143,7 +152,7 @@ bool Raytrace(SRay ray, float final, inout SIntersection intersect) {
     }
     //calculate intersect with triangles
     for (int i = 0; i < triangles_used; i++) {
-        if(IntersectTriangle(ray, triangles[i], test) && test < intersect.time) {
+        if(IntersectTriangle(ray, i, test) && test < intersect.time) {
             intersect.time = test;
             intersect.point = ray.origin + ray.direction * test;
             intersect.normal = normalize(cross(triangles[i].v2 - triangles[i].v1, triangles[i].v3 - triangles[i].v1));
@@ -201,8 +210,21 @@ STracingRay popRay() {
     return stack[stack_id--];
 }
 
+void INIT() {
+    /*for (int i = 0; i < triangles_used; i++) {
+        vec3 v1 = triangles[i].v1;
+        vec3 v2 = triangles[i].v2;
+        vec3 v3 = triangles[i].v3;
+        triangles_norms[i].norm = cross(v2 - v1, v3 - v1);
+        triangles_norms[i].norm1 = cross(triangles_norms[i].norm, v2 - v1);
+        triangles_norms[i].norm2 = cross(triangles_norms[i].norm, v3 - v2);
+        triangles_norms[i].norm3 = cross(triangles_norms[i].norm, v1 - v3);
+    }*/
+}
+
 void main()
 {
+    //INIT();
     float final = BIG;
     SRay ray = GenerateRay();
     SIntersection intersect;
