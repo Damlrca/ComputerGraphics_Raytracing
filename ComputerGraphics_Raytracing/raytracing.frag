@@ -79,11 +79,10 @@ bool IntersectSphere(SRay ray, SSphere sphere, out float time) {
 
 bool IntersectTriangle(SRay ray, int i, out float time) {
     time = -1;
-    vec3 N = triangles_norms[i].norm;
-    float NdotRayDirection = dot(N, ray.direction);
+    float NdotRayDirection = dot(triangles_norms[i].norm, ray.direction);
     if (NdotRayDirection > -EPSILON) // triangle is transparent at one side
         return false;
-    float t = dot(N, triangles[i].v1 - ray.origin) / NdotRayDirection;
+    float t = dot(triangles_norms[i].norm, triangles[i].v1 - ray.origin) / NdotRayDirection;
     if (t < 0)
         return false;
     vec3 P = ray.origin + t * ray.direction;
@@ -135,7 +134,17 @@ bool Raytrace(SRay ray, float final, inout SIntersection intersect) {
         }
     }
     //calculate intersect with triangles
-    for (int i = 0; i < triangles_used; i++) {
+    for (int i = 0; i < 12; i++) {
+        if(IntersectTriangle(ray, i, test) && test < intersect.time) {
+            intersect.time = test;
+            intersect.point = ray.origin + ray.direction * test;
+            intersect.normal = triangles_norms[i].norm;
+            intersect.MaterialId = triangles[i].MaterialId;
+            result = true;
+        }
+    }
+    if (IntersectSphere(ray, spheres[3], test))
+    for (int i = 12; i < triangles_used; i++) {
         if(IntersectTriangle(ray, i, test) && test < intersect.time) {
             intersect.time = test;
             intersect.point = ray.origin + ray.direction * test;

@@ -363,6 +363,11 @@ namespace ComputerGraphics_Raytracing
             shaders.Uniform3("spheres[2].center", 0.5f, 3.0f, -4.0f);
             shaders.Uniform1("spheres[2].radius", 0.2f);
             shaders.Uniform1("spheres[2].MaterialId", 5);
+
+            // dode
+            shaders.Uniform3("spheres[3].center", x, y, z);
+            shaders.Uniform1("spheres[3].radius", (new Vector3(n * sinPi10)).Length);
+            shaders.Uniform1("spheres[3].MaterialId", 0);
         }
 
         public static void InitializeLight(Shaders shaders)
