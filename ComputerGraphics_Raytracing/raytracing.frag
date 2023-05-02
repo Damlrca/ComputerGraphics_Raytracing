@@ -86,11 +86,12 @@ bool IntersectTriangle(SRay ray, int i, out float time) {
     if (t < 0)
         return false;
     vec3 P = ray.origin + t * ray.direction;
-    if (dot(triangles_norms[i].norm1, P - triangles[i].v1) < 0)
+    vec3 temp = P - triangles[i].v1;
+    if (dot(triangles_norms[i].norm1, temp) < 0)
         return false;
     if (dot(triangles_norms[i].norm2, P - triangles[i].v2) < 0)
         return false;
-    if (dot(triangles_norms[i].norm3, P - triangles[i].v3) < 0)
+    if (dot(triangles_norms[i].norm3, temp) < 0)
         return false;
     time = t;
     return true;
