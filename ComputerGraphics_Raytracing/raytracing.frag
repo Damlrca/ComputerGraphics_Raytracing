@@ -45,9 +45,9 @@ struct STriangle {
 
 struct STriangleNORMS {
     vec3 norm;
-    vec3 norm1;
-    vec3 norm2;
-    vec3 norm3;
+    vec3 sp1;
+    vec3 sp2;
+    float d;
 };
 
 uniform STriangle triangles[50];
@@ -79,44 +79,23 @@ bool IntersectSphere(SRay ray, SSphere sphere, out float time) {
 
 bool IntersectTriangle(SRay ray, int i, out float time) {
     time = -1;
-    float NdotRayDirection = dot(triangles_norms[i].norm, ray.direction);
-    if (NdotRayDirection > -EPSILON) // triangle is transparent at one side
+    float NdotRay = dot(triangles_norms[i].norm, ray.direction);
+    if (NdotRay > -EPSILON)
         return false;
-    float t = dot(triangles_norms[i].norm, triangles[i].v1 - ray.origin) / NdotRayDirection;
+    float t = dot(triangles_norms[i].norm, triangles[i].v1 - ray.origin) / NdotRay;
     if (t < 0)
         return false;
     vec3 P = ray.origin + t * ray.direction;
 
-    vec3 v1 = triangles[i].v1;
-    vec3 v2 = triangles[i].v2;
-    vec3 v3 = triangles[i].v3;
+    vec3 c = P - triangles[i].v1;
 
-    vec3 a = v2 - v1;
-    vec3 b = v3 - v1;
+    float d = triangles_norms[i].d;
+    float u = dot(triangles_norms[i].sp1, c);
+    float v = dot(triangles_norms[i].sp2, c);
 
-    vec3 c = P - v1;
-
-    mat3 m = mat3(a, b, triangles_norms[i].norm);
-    mat3 mu = mat3(c, b, triangles_norms[i].norm);
-    mat3 mv = mat3(a, c, triangles_norms[i].norm);
-
-    //float d = a.x * b.y - a.y * b.x;
-    float d = determinant(m);
-    //float u = c.x * b.y - c.y * b.x;
-    float u = determinant(mu);
-    //float v = a.x * c.y - a.y * c.x;
-    float v = determinant(mv);
-
-    if (u < 0 || u > d || v < 0 || v > d || v + u > d)
+    if (u < 0 || u > d || v < 0 || v + u > d)
         return false;
 
-    //vec3 temp = P - triangles[i].v1;
-    //if (dot(triangles_norms[i].norm1, temp) < 0)
-    //    return false;
-    //if (dot(triangles_norms[i].norm2, P - triangles[i].v2) < 0)
-    //    return false;
-    //if (dot(triangles_norms[i].norm3, temp) < 0)
-    //    return false;
     time = t;
     return true;
 }

@@ -341,9 +341,15 @@ namespace ComputerGraphics_Raytracing
                 Vector3 norm = Vector3.Cross(v2 - v1, v3 - v1);
                 norm.Normalize();
                 shaders.Uniform3($"triangles_norms[{i}].norm", norm);
-                shaders.Uniform3($"triangles_norms[{i}].norm1", Vector3.Cross(norm, v2 - v1));
-                shaders.Uniform3($"triangles_norms[{i}].norm2", Vector3.Cross(norm, v3 - v2));
-                shaders.Uniform3($"triangles_norms[{i}].norm3", Vector3.Cross(norm, v1 - v3));
+
+                Matrix3 m = new Matrix3(v2 - v1, v3 - v1, norm);
+                shaders.Uniform1($"triangles_norms[{i}].d", m.Determinant);
+                shaders.Uniform3($"triangles_norms[{i}].sp1", m[1, 1] * m[2, 2] - m[1, 2] * m[2, 1],
+                                                            - m[1, 0] * m[2, 2] + m[1, 2] * m[2, 0],
+                                                              m[1, 0] * m[2, 1] - m[1, 1] * m[2, 0]);
+                shaders.Uniform3($"triangles_norms[{i}].sp2", -new Vector3(m[0, 1] * m[2, 2] - m[0, 2] * m[2, 1],
+                                                            - m[0, 0] * m[2, 2] + m[0, 2] * m[2, 0],
+                                                              m[0, 0] * m[2, 1] - m[0, 1] * m[2, 0]));
             }
 
             // SPHERES
