@@ -339,6 +339,7 @@ namespace ComputerGraphics_Raytracing
                 Vector3 v2 = shaders.GetUniform($"triangles[{i}].v2");
                 Vector3 v3 = shaders.GetUniform($"triangles[{i}].v3");
                 Vector3 norm = Vector3.Cross(v2 - v1, v3 - v1);
+                norm.Normalize();
                 shaders.Uniform3($"triangles_norms[{i}].norm", norm);
                 shaders.Uniform3($"triangles_norms[{i}].norm1", Vector3.Cross(norm, v2 - v1));
                 shaders.Uniform3($"triangles_norms[{i}].norm2", Vector3.Cross(norm, v3 - v2));
