@@ -48,10 +48,28 @@ struct STriangle {
     float d;
 };
 
-uniform STriangle triangles[50];
+struct SPentagon {
+    //vec3 v1, v3;
+    vec3 v2, v4, v5;
+    int MaterialId;
+    //
+    vec3 norm;
+    vec3 sp1, sp2, sp3, sp4, sp5;
+};
+
+struct SDodecahedron {
+    int id_first;
+    int id_shell;
+};
+
+uniform STriangle triangles[15];
 uniform int triangles_used;
-uniform SSphere spheres[10];
+uniform SSphere spheres[5];
 uniform int spheres_used;
+uniform SPentagon pentagons[15];
+//uniform int pentagons_used;
+uniform SDodecahedron dodecahderons[2];
+uniform int dodecahderons_used;
 
 bool IntersectSphere(SRay ray, int i, out float time) {
     time = -1;
@@ -96,6 +114,29 @@ bool IntersectTriangle(SRay ray, int i, out float time) {
     return true;
 }
 
+bool IntersectPentagon(SRay ray, int i, out float time) {
+    float NdotRay = dot(pentagons[i].norm, ray.direction);
+    time = BIG / 2;
+    if (NdotRay > -EPSILON)
+        return false;
+    float t = dot(pentagons[i].norm, pentagons[i].v2 - ray.origin) / NdotRay;
+    if (t < 0)
+        return false;
+
+    vec3 P = ray.origin + t * ray.direction;
+
+    vec3 temp = P - pentagons[i].v2;
+    if (dot(pentagons[i].sp1, temp) < 0) return false;
+    if (dot(pentagons[i].sp2, temp) < 0) return false;
+    temp = P - pentagons[i].v4;
+    if (dot(pentagons[i].sp3, temp) < 0) return false;
+    if (dot(pentagons[i].sp4, temp) < 0) return false;
+    if (dot(pentagons[i].sp5, P - pentagons[i].v5) < 0) return false;
+
+    time = t;
+    return true;
+}
+
 struct SIntersection{
     float time;
     vec3 point;
@@ -123,7 +164,7 @@ bool Raytrace(SRay ray, float final, inout SIntersection intersect) {
     bool result = false;
     float test;
     intersect.time = final;
-    //calculate intersect with spheres
+    // spheres
     for (int i = 0; i < spheres_used; i++) {
         if (IntersectSphere(ray, i, test) && test < intersect.time) {
             intersect.time = test;
@@ -133,7 +174,7 @@ bool Raytrace(SRay ray, float final, inout SIntersection intersect) {
             result = true;
         }
     }
-    //calculate intersect with triangles
+    // triangles
     for (int i = 0; i < triangles_used; i++) {
         if(IntersectTriangle(ray, i, test) && test < intersect.time) {
             intersect.time = test;
@@ -142,6 +183,31 @@ bool Raytrace(SRay ray, float final, inout SIntersection intersect) {
             intersect.MaterialId = triangles[i].MaterialId;
             result = true;
         }
+    }
+    // pentagons
+    /*
+    for (int i = 0; i < pentagons_used; i++) {
+        if(IntersectPentagon(ray, i, test) && test < intersect.time) {
+            intersect.time = test;
+            intersect.point = ray.origin + ray.direction * test;
+            intersect.normal = pentagons[i].norm;
+            intersect.MaterialId = pentagons[i].MaterialId;
+            result = true;
+        }
+    }
+    */
+    // dodecahderons
+    for (int j = 0; j < dodecahderons_used; j++) {
+        if (IntersectSphere(ray, dodecahderons[j].id_shell, test))
+            for (int i = dodecahderons[j].id_first; i < dodecahderons[j].id_first + 12; i++) {
+                if(IntersectPentagon(ray, i, test) && test < intersect.time) {
+                    intersect.time = test;
+                    intersect.point = ray.origin + ray.direction * test;
+                    intersect.normal = pentagons[i].norm;
+                    intersect.MaterialId = pentagons[i].MaterialId;
+                    result = true;
+                }
+            }
     }
     return result;
 }

@@ -63,10 +63,9 @@ namespace ComputerGraphics_Raytracing
             camera.up.Normalize();
             camera.right.Normalize();
 
-            InitializeDefaultScene.InitializeCamera(shaders, camera);
-            InitializeDefaultScene.InitializeScene(shaders);
-            InitializeDefaultScene.InitializeLight(shaders);
-            InitializeDefaultScene.InitializeMaterials(shaders);
+            SceneInitializer.InitializeCamera(shaders, camera);
+            SceneInitializer.InitializeDefaultScene(shaders);
+            SceneInitializer.InitializeMaterials(shaders);
             
             rotationMatrixYR = Matrix3.CreateRotationY(-angle);
             rotationMatrixYL = Matrix3.CreateRotationY(angle);

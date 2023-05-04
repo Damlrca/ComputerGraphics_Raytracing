@@ -12,7 +12,7 @@ namespace ComputerGraphics_Raytracing
         public Vector2 scale;
     }
 
-    public static class InitializeDefaultScene
+    public static class SceneInitializer
     {
         public static readonly int DEFAULT = 1;
         public static readonly int LIGHT = 2;
@@ -49,12 +49,23 @@ namespace ComputerGraphics_Raytracing
 
         private static void UniformPentagon(Shaders shaders, int id, Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Vector3 v5, int MaterialId)
         {
-            UniformTriangle(shaders, id, v1, v2, v3, MaterialId);
-            UniformTriangle(shaders, id + 1, v1, v3, v4, MaterialId);
-            UniformTriangle(shaders, id + 2, v1, v4, v5, MaterialId);
+            //shaders.Uniform3($"pentagons[{id}].v1", v1);
+            shaders.Uniform3($"pentagons[{id}].v2", v2);
+            //shaders.Uniform3($"pentagons[{id}].v3", v3);
+            shaders.Uniform3($"pentagons[{id}].v4", v4);
+            shaders.Uniform3($"pentagons[{id}].v5", v5);
+            Vector3 norm = Vector3.Cross(v2 - v1, v3 - v1);
+            norm.Normalize();
+            shaders.Uniform3($"pentagons[{id}].norm", norm);
+            shaders.Uniform3($"pentagons[{id}].sp1", Vector3.Cross(norm, v2 - v1));
+            shaders.Uniform3($"pentagons[{id}].sp2", Vector3.Cross(norm, v3 - v2));
+            shaders.Uniform3($"pentagons[{id}].sp3", Vector3.Cross(norm, v4 - v3));
+            shaders.Uniform3($"pentagons[{id}].sp4", Vector3.Cross(norm, v5 - v4));
+            shaders.Uniform3($"pentagons[{id}].sp5", Vector3.Cross(norm, v1 - v5));
+            shaders.Uniform1($"pentagons[{id}].MaterialId", MaterialId);
         }
 
-        public static void InitializeScene(Shaders shaders)
+        public static void InitializeDefaultScene(Shaders shaders)
         {
             Vector3[] Cube = new Vector3[]
             {
@@ -96,8 +107,10 @@ namespace ComputerGraphics_Raytracing
                 new Vector3(n * sinPi10 + x, n * sinPi10 + y, n * sinPi10 + z)
             };
 
-            // TRIANGLES (clockwise order of vectors!!!)
-            shaders.Uniform1("triangles_used", 48);
+            // clockwise order of vectors!!!
+
+            // TRIANGLES
+            shaders.Uniform1("triangles_used", 12);
 
             // CUBE
             // left wall: triangles 0, 1
@@ -119,31 +132,22 @@ namespace ComputerGraphics_Raytracing
             UniformTriangle(shaders, 10, Cube[4], Cube[2], Cube[0], 0);
             UniformTriangle(shaders, 11, Cube[4], Cube[6], Cube[2], 0);
 
-            // DODECAHEDRON
-            // 1 Pentagon
-            UniformPentagon(shaders, 12, Dodecahedron[0], Dodecahedron[1], Dodecahedron[12], Dodecahedron[5], Dodecahedron[13], 7);
-            // 2 Pentagon
-            UniformPentagon(shaders, 15, Dodecahedron[0], Dodecahedron[14], Dodecahedron[9], Dodecahedron[15], Dodecahedron[1], 7);
-            // 3 Pentagon
-            UniformPentagon(shaders, 18, Dodecahedron[2], Dodecahedron[19], Dodecahedron[8], Dodecahedron[18], Dodecahedron[3], 7);
-            // 4 Pentagon
-            UniformPentagon(shaders, 21, Dodecahedron[2], Dodecahedron[3], Dodecahedron[17], Dodecahedron[4], Dodecahedron[16], 7);
-            // 5 Pentagon
-            UniformPentagon(shaders, 24, Dodecahedron[4], Dodecahedron[5], Dodecahedron[12], Dodecahedron[6], Dodecahedron[16], 7);
-            // 6 Pentagon
-            UniformPentagon(shaders, 27, Dodecahedron[4], Dodecahedron[17], Dodecahedron[11], Dodecahedron[13], Dodecahedron[5], 7);
-            // 7 Pentagon
-            UniformPentagon(shaders, 30, Dodecahedron[6], Dodecahedron[7], Dodecahedron[19], Dodecahedron[2], Dodecahedron[16], 7);
-            // 8 Pentagon
-            UniformPentagon(shaders, 33, Dodecahedron[6], Dodecahedron[12], Dodecahedron[1], Dodecahedron[15], Dodecahedron[7], 7);
-            // 9 Pentagon
-            UniformPentagon(shaders, 36, Dodecahedron[8], Dodecahedron[19], Dodecahedron[7], Dodecahedron[15], Dodecahedron[9], 7);
-            // 10 Pentagon
-            UniformPentagon(shaders, 39, Dodecahedron[8], Dodecahedron[9], Dodecahedron[14], Dodecahedron[10], Dodecahedron[18], 7);
-            // 11 Pentagon
-            UniformPentagon(shaders, 42, Dodecahedron[10], Dodecahedron[11], Dodecahedron[17], Dodecahedron[3], Dodecahedron[18], 7);
-            // 12 Pentagon
-            UniformPentagon(shaders, 45, Dodecahedron[10], Dodecahedron[14], Dodecahedron[0], Dodecahedron[13], Dodecahedron[11], 7);
+            // PENTAGONS
+            //shaders.Uniform1("pentagons_used", 0);
+            UniformPentagon(shaders, 0, Dodecahedron[0], Dodecahedron[1], Dodecahedron[12], Dodecahedron[5], Dodecahedron[13], 7);
+            UniformPentagon(shaders, 1, Dodecahedron[0], Dodecahedron[14], Dodecahedron[9], Dodecahedron[15], Dodecahedron[1], 7);
+            UniformPentagon(shaders, 2, Dodecahedron[2], Dodecahedron[19], Dodecahedron[8], Dodecahedron[18], Dodecahedron[3], 7);
+            UniformPentagon(shaders, 3, Dodecahedron[2], Dodecahedron[3], Dodecahedron[17], Dodecahedron[4], Dodecahedron[16], 7);
+
+            UniformPentagon(shaders, 4, Dodecahedron[4], Dodecahedron[5], Dodecahedron[12], Dodecahedron[6], Dodecahedron[16], 7);
+            UniformPentagon(shaders, 5, Dodecahedron[4], Dodecahedron[17], Dodecahedron[11], Dodecahedron[13], Dodecahedron[5], 7);
+            UniformPentagon(shaders, 6, Dodecahedron[6], Dodecahedron[7], Dodecahedron[19], Dodecahedron[2], Dodecahedron[16], 7);
+            UniformPentagon(shaders, 7, Dodecahedron[6], Dodecahedron[12], Dodecahedron[1], Dodecahedron[15], Dodecahedron[7], 7);
+
+            UniformPentagon(shaders, 8, Dodecahedron[8], Dodecahedron[19], Dodecahedron[7], Dodecahedron[15], Dodecahedron[9], 7);
+            UniformPentagon(shaders, 9, Dodecahedron[8], Dodecahedron[9], Dodecahedron[14], Dodecahedron[10], Dodecahedron[18], 7);
+            UniformPentagon(shaders, 10, Dodecahedron[10], Dodecahedron[11], Dodecahedron[17], Dodecahedron[3], Dodecahedron[18], 7);
+            UniformPentagon(shaders, 11, Dodecahedron[10], Dodecahedron[14], Dodecahedron[0], Dodecahedron[13], Dodecahedron[11], 7);
 
             // SPHERES
             shaders.Uniform1("spheres_used", 3);
@@ -162,10 +166,18 @@ namespace ComputerGraphics_Raytracing
             shaders.Uniform3("spheres[2].center", 0.5f, 3.0f, -4.0f);
             shaders.Uniform1("spheres[2].radius", 0.2f);
             shaders.Uniform1("spheres[2].MaterialId", 5);
-        }
 
-        public static void InitializeLight(Shaders shaders)
-        {
+            // dodecahedron shell: sphere 3
+            shaders.Uniform3("spheres[3].center", x, y, z);
+            shaders.Uniform1("spheres[3].radius", (new Vector3(n * sinPi10)).Length);
+            shaders.Uniform1("spheres[3].MaterialId", 0);
+
+            // DODECAHEDRON
+            shaders.Uniform1("dodecahderons_used", 1);
+            shaders.Uniform1("dodecahderons[0].id_first", 0);
+            shaders.Uniform1("dodecahderons[0].id_shell", 3);
+
+            // LIGHT
             shaders.Uniform3("uLight.position", 0.5f, 3.0f, -4.0f);
         }
 

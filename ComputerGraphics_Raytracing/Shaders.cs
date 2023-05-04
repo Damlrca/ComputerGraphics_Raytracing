@@ -33,7 +33,7 @@ namespace ComputerGraphics_Raytracing
             }
             else
             {
-                Console.WriteLine($"Шейдерная программа успешно слинкована");
+                //Console.WriteLine($"Шейдерная программа успешно слинкована");
             }
         }
 
@@ -187,7 +187,7 @@ namespace ComputerGraphics_Raytracing
             }
             else
             {
-                Console.WriteLine($"Шейдер {filename} успешно скомпилирован");
+                //Console.WriteLine($"Шейдер {filename} успешно скомпилирован");
             }
 
             return shaderID;
