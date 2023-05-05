@@ -23,15 +23,20 @@ namespace ComputerGraphics_Raytracing
         private Matrix3 rotationMatrixYL;
         private int MAX_DEPTH;
         float angle = (float)Math.PI / 60 / 4;
+        string basicTitle;
 
         public MyWindow(int width, int height, string title) :
-            base(new GameWindowSettings() { RenderFrequency = 60, UpdateFrequency = 60 },
+            base(new GameWindowSettings() { UpdateFrequency = 60 },
                  new NativeWindowSettings() { Size = (width, height), Title = title })
-        { }
+        {
+            basicTitle = title;
+        }
 
         protected override void OnLoad()
         {
             base.OnLoad();
+
+            VSync = VSyncMode.On;
 
             VertexArrayObject = GL.GenVertexArray();
             GL.BindVertexArray(VertexArrayObject);
@@ -58,10 +63,9 @@ namespace ComputerGraphics_Raytracing
             camera.up.Normalize();
             camera.right.Normalize();
 
-            InitializeDefaultScene.InitializeCamera(shaders, camera);
-            InitializeDefaultScene.InitializeScene(shaders);
-            InitializeDefaultScene.InitializeLight(shaders);
-            InitializeDefaultScene.InitializeMaterials(shaders);
+            SceneInitializer.InitializeCamera(shaders, camera);
+            SceneInitializer.InitializeDefaultScene(shaders);
+            SceneInitializer.InitializeMaterials(shaders);
             
             rotationMatrixYR = Matrix3.CreateRotationY(-angle);
             rotationMatrixYL = Matrix3.CreateRotationY(angle);
@@ -73,6 +77,7 @@ namespace ComputerGraphics_Raytracing
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
+            Title = basicTitle + $" (FPS: {(int)(1 / e.Time)}; last frame: {e.Time * 1000:0.00}ms)";
 
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
