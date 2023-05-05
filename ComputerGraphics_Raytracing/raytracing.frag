@@ -68,8 +68,8 @@ uniform SSphere spheres[5];
 uniform int spheres_used;
 uniform SPentagon pentagons[15];
 //uniform int pentagons_used;
-uniform SDodecahedron dodecahderons[2];
-uniform int dodecahderons_used;
+uniform SDodecahedron dodecahedra[2];
+uniform int dodecahedra_used;
 
 bool IntersectSphere(SRay ray, int i, out float time) {
     time = -1;
@@ -197,9 +197,9 @@ bool Raytrace(SRay ray, float final, inout SIntersection intersect) {
     }
     */
     // dodecahderons
-    for (int j = 0; j < dodecahderons_used; j++) {
-        if (IntersectSphere(ray, dodecahderons[j].id_shell, test))
-            for (int i = dodecahderons[j].id_first; i < dodecahderons[j].id_first + 12; i++) {
+    for (int j = 0; j < dodecahedra_used; j++) {
+        if (IntersectSphere(ray, dodecahedra[j].id_shell, test))
+            for (int i = dodecahedra[j].id_first; i < dodecahedra[j].id_first + 12; i++) {
                 if(IntersectPentagon(ray, i, test) && test < intersect.time) {
                     intersect.time = test;
                     intersect.point = ray.origin + ray.direction * test;

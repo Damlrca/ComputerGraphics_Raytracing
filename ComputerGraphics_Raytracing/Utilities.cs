@@ -173,9 +173,9 @@ namespace ComputerGraphics_Raytracing
             shaders.Uniform1("spheres[3].MaterialId", 0);
 
             // DODECAHEDRON
-            shaders.Uniform1("dodecahderons_used", 1);
-            shaders.Uniform1("dodecahderons[0].id_first", 0);
-            shaders.Uniform1("dodecahderons[0].id_shell", 3);
+            shaders.Uniform1("dodecahedra_used", 1);
+            shaders.Uniform1("dodecahedra[0].id_first", 0);
+            shaders.Uniform1("dodecahedra[0].id_shell", 3);
 
             // LIGHT
             shaders.Uniform3("uLight.position", 0.5f, 3.0f, -4.0f);
