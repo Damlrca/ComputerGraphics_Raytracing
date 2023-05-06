@@ -22,8 +22,9 @@ namespace ComputerGraphics_Raytracing
         private Matrix3 rotationMatrixYR;
         private Matrix3 rotationMatrixYL;
         private int MAX_DEPTH;
-        float angle = (float)Math.PI / 60 / 4;
-        string basicTitle;
+        private float angle = (float)Math.PI / 60 / 4;
+        private readonly string basicTitle;
+        private int sceneID;
 
         public MyWindow(int width, int height, string title) :
             base(new GameWindowSettings() { UpdateFrequency = 60 },
@@ -63,6 +64,7 @@ namespace ComputerGraphics_Raytracing
             camera.up.Normalize();
             camera.right.Normalize();
 
+            sceneID = 1;
             SceneInitializer.InitializeCamera(shaders, camera);
             SceneInitializer.InitializeDefaultScene(shaders);
             SceneInitializer.InitializeMaterials(shaders);
@@ -159,13 +161,30 @@ namespace ComputerGraphics_Raytracing
                 camera.position += -new Vector3(0.0f, 1.0f, 0.0f) / 10;
             }
 
+            if (input.IsKeyDown(Keys.D1))
+            {
+                if (sceneID != 1)
+                {
+                    SceneInitializer.InitializeDefaultScene(shaders);
+                    sceneID = 1;
+                }
+            }
+            else if (input.IsKeyDown(Keys.D2))
+            {
+                if (sceneID != 2)
+                {
+                    SceneInitializer.InitializeScene2(shaders);
+                    sceneID = 2;
+                }
+            }
+
             if (PreviousKeyboardState != null)
             {
                 // + -
                 if (!PreviousKeyboardState.IsKeyDown(Keys.Equal) && input.IsKeyDown(Keys.Equal))
                 {
                     MAX_DEPTH++;
-                    MAX_DEPTH = Math.Min(MAX_DEPTH, 10);
+                    MAX_DEPTH = Math.Min(MAX_DEPTH, 20);
                     shaders.Uniform1("MAX_DEPTH", MAX_DEPTH);
                 }
                 if (!PreviousKeyboardState.IsKeyDown(Keys.Minus) && input.IsKeyDown(Keys.Minus))
